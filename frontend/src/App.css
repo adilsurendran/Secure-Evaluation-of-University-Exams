@@ -1,0 +1,126 @@
+/* ============================
+   LOGIN FULL PAGE BACKGROUND
+============================ */
+.login-container {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  background-attachment: fixed;
+  padding: 20px;
+}
+
+/* ============================
+   LOGIN CARD (GLASS EFFECT)
+============================ */
+.login-box {
+  width: 380px;
+  padding: 35px 30px;
+  border-radius: 18px;
+
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(12px);
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  animation: fadeIn 0.4s ease;
+
+  text-align: center;
+  color: white;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Title */
+.login-box h2 {
+  margin-bottom: 25px;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+
+/* ============================
+   INPUT FIELDS
+============================ */
+.login-box input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+
+  border: none;
+  outline: none;
+
+  border-radius: 10px;
+  background: rgba(255,255,255,0.25);
+  color: white;
+
+  font-size: 16px;
+  letter-spacing: 0.5px;
+
+  transition: 0.25s ease;
+}
+
+.login-box input::placeholder {
+  color: #f5f5f5;
+}
+
+.login-box input:focus {
+  background: rgba(255,255,255,0.35);
+  transform: scale(1.03);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.25);
+}
+
+
+/* ============================
+   LOGIN BUTTON
+============================ */
+.login-box button {
+  width: 100%;
+  padding: 12px;
+
+  margin-top: 18px;
+  border: none;
+
+  background: white;
+  color: #333;
+
+  font-size: 17px;
+  font-weight: 600;
+
+  border-radius: 10px;
+  cursor: pointer;
+
+  transition: 0.25s ease;
+}
+
+.login-box button:hover {
+  background: #ececec;
+  transform: translateY(-2px);
+}
+
+
+/* ============================
+   SIGNUP LINK
+============================ */
+.signup-text {
+  margin-top: 15px;
+  font-size: 15px;
+}
+
+.signup-link {
+  color: #ffe066;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.signup-link:hover {
+  text-decoration: underline;
+  color: #ffdd55;
+}

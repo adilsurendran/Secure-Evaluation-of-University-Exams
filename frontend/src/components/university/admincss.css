@@ -1,0 +1,638 @@
+/* MAIN LAYOUT */
+.admin-container {
+  display: flex;
+  height: 100vh;
+  font-family: "Poppins", sans-serif;
+}
+
+/* SIDEBAR */
+.admin-sidebar {
+  width: 260px;
+  background: #1f1f2e;
+  color: #fff;
+  padding: 20px;
+  box-shadow: 3px 0 10px rgba(0,0,0,0.2);
+}
+
+.admin-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 25px;
+}
+
+.admin-menu {
+  list-style: none;
+  padding: 0;
+}
+
+.admin-menu li {
+  padding: 12px 10px;
+  margin-bottom: 10px;
+  background: #2c2c3a;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 16px;
+}
+
+.admin-menu li:hover {
+  background: #474767;
+}
+
+/* CONTENT */
+.admin-content {
+  flex: 1;
+  padding: 30px;
+  background: #f1f3f8;
+  overflow-y: auto;
+}
+
+.admin-content h1 {
+  font-size: 26px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.admin-content p {
+  font-size: 15px;
+  color: #555;
+}
+
+
+/* ============================
+   COLLEGE REGISTRATION FORM
+============================ */
+
+.bgg {
+  width: 100%;
+  padding: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.college-form-wrapper {
+  width: 520px;
+  background: #ffffff;
+  padding: 30px 35px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0px); }
+}
+
+.college-form-wrapper h2 {
+  margin-bottom: 20px;
+  font-size: 26px;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+}
+
+/* Inputs */
+.college-form-wrapper input,
+.college-form-wrapper textarea {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1.5px solid #ccc;
+  font-size: 15px;
+  outline: none;
+  transition: 0.25s ease;
+}
+
+.college-form-wrapper textarea {
+  resize: none;
+  height: 90px;
+}
+
+/* Focus effect */
+.college-form-wrapper input:focus,
+.college-form-wrapper textarea:focus {
+  border-color: #4b7bff;
+  box-shadow: 0 0 0 3px rgba(75, 123, 255, 0.25);
+}
+
+/* Error text */
+.error {
+  color: red;
+  font-size: 13px;
+  margin-top: -6px;
+  margin-bottom: 8px;
+}
+
+/* Submit Button */
+.college-form-wrapper button {
+  width: 100%;
+  padding: 12px;
+  background: #4b7bff;
+  border: none;
+  border-radius: 10px;
+  font-size: 17px;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.25s ease;
+}
+
+.college-form-wrapper button:hover {
+  background: #3d69e0;
+  transform: translateY(-2px);
+}
+
+
+/* ===============================
+   MANAGE COLLEGES PAGE
+================================ */
+
+/* Page layout */
+.college-page {
+  padding: 20px;
+}
+
+/* Header + Add button row */
+.college-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.college-header h2 {
+  font-size: 24px;
+  color: #333;
+}
+
+/* Add College Button */
+.add-college-btn {
+  padding: 10px 16px;
+  background: #4b7bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.add-college-btn:hover {
+  background: #3d69e0;
+  transform: translateY(-2px);
+}
+
+
+/* Table container */
+.college-table-container {
+  margin-top: 20px;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 6px 18px rgba(0,0,0,0.1);
+}
+
+/* Table */
+.college-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.college-table th,
+.college-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 15px;
+}
+
+.college-table th {
+  text-align: left;
+  background: #f6f7fb;
+  color: #444;
+  font-weight: 600;
+}
+
+/* Action column */
+.action-col {
+  text-align: center;
+}
+
+.edit-btn,
+.delete-btn {
+  padding: 6px 12px;
+  margin: 0 5px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  font-weight: 500;
+}
+
+/* Edit button */
+.edit-btn {
+  background: #ffb400;
+}
+
+.edit-btn:hover {
+  background: #e09d00;
+}
+
+/* Delete button */
+.delete-btn {
+  background: #ff4b4b;
+}
+
+.delete-btn:hover {
+  background: #e03c3c;
+}
+
+
+/* PAGE LAYOUT */
+.admin-page {
+  padding: 20px;
+}
+
+/* HEADER */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.add-btn {
+  padding: 10px 16px;
+  background: #4b7bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.add-btn:hover {
+  background: #3d69e0;
+}
+
+/* TABLE */
+.card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 20px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th, .admin-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.admin-table th {
+  background: #f5f6fa;
+}
+
+.action-col {
+  text-align: center;
+}
+
+.edit-btn {
+  padding: 6px 12px;
+  background: #ffb400;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+
+.delete-btn {
+  padding: 6px 12px;
+  background: #ff4b4b;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+
+/* FORM CARD */
+.form-card {
+  width: 450px;
+  margin: auto;
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+
+.form-card input,
+.form-card select {
+  width: 100%;
+  padding: 12px;
+  border: 1.5px solid #ccc;
+  margin: 10px 0;
+  border-radius: 8px;
+}
+
+.form-card button {
+  width: 100%;
+  padding: 12px;
+  background: #4b7bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.form-card button:hover {
+  background: #385edc;
+}
+
+
+.subject-select {
+  width: 100%;
+  height: 120px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1.5px solid #ccc;
+  margin-top: 10px;
+}
+
+
+.multi-select-box {
+  position: relative;
+  width: 100%;
+}
+
+.selected-area {
+  min-height: 45px;
+  width: 100%;
+  padding: 8px;
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  cursor: pointer;
+  background: #fff;
+}
+
+.placeholder {
+  color: #888;
+  font-size: 14px;
+}
+
+.chip {
+  background: #4b7bff;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.remove-chip {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.dropdown {
+  position: absolute;
+  width: 100%;
+  max-height: 180px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-top: 5px;
+  z-index: 10;
+}
+
+.dropdown-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background: #f1f1f1;
+}
+
+
+.subject-search-box {
+  width: 100%;
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.subject-search-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #bbb;
+  border-radius: 8px;
+  outline: none;
+}
+
+.selected-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  min-height: 40px;
+}
+
+.placeholder {
+  color: #888;
+  font-size: 14px;
+}
+
+.chip {
+  background: #0077ff20;
+  color: #0053aa;
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.remove-chip {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.dropdown {
+  position: absolute;
+  width: 100%;
+  max-height: 180px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  margin-top: 5px;
+  z-index: 50;
+}
+
+.dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background: #eee;
+}
+
+
+.subject-search-box {
+  width: 100%;
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.subject-search-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #bbb;
+  border-radius: 8px;
+  outline: none;
+}
+
+.selected-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 10px;
+  min-height: 40px;
+}
+
+.placeholder {
+  color: #888;
+  font-size: 14px;
+}
+
+.chip {
+  background: #0077ff22;
+  color: #0053aa;
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.remove-chip {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.dropdown {
+  position: absolute;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 20;
+  margin-top: 5px;
+}
+
+.dropdown-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background: #eee;
+}
+
+
+/* Improve select UI (session, subject dropdowns) */
+select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #bbb;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  outline: none;
+  background: #fff;
+  font-size: 15px;
+}
+
+select:focus {
+  border-color: #0077ff;
+  box-shadow: 0 0 3px #0077ff99;
+}
+
+/* Multi-select shared styles */
+.subject-search-box {
+  width: 100%;
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.subject-search-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #bbb;
+  border-radius: 8px;
+  outline: none;
+}
+
+.selected-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 10px;
+  min-height: 40px;
+}
+
+.placeholder {
+  color: #888;
+  font-size: 14px;
+}
+
+.chip {
+  background: #0077ff22;
+  color: #0053aa;
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.remove-chip {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.dropdown {
+  position: absolute;
+  width: 100%;
+  background: white;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 40;
+  margin-top: 5px;
+}
+
+.dropdown-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background: #eee;
+}
