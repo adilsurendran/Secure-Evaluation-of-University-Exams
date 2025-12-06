@@ -15,6 +15,7 @@ function StudentSidebar() {
       <h2 className="sidebar-title">Student Panel</h2>
 
       <ul className="sidebar-menu">
+        <li onClick={() => navigate("/student/home")}>Home</li>
         <li onClick={() => navigate("/student/profile")}>Profile</li>
         <li onClick={() => navigate("/student/exam-schedule")}>Exam Schedule</li>
         <li onClick={() => navigate("/student/results")}>Results</li>

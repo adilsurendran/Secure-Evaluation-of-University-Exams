@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 const answerSheetSchema = new mongoose.Schema(
   {
+    sessionId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ExamSession",
+      required: true,
+    },
+
     examId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Exam",
@@ -14,25 +20,27 @@ const answerSheetSchema = new mongoose.Schema(
       required: true,
     },
 
-    fileUrl: { type: String }, // uploaded sheet
-    uploadedAt: { type: Date, default: Date.now },
+    subjectId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subject",
+      required: true,
+    },
 
-    // Evaluation
+    collegeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "College",
+      required: true,
+    },
+
+    fileUrl: { type: String, required: true },
+
+    status: {
+      type: String,
+      enum: ["uploaded", "evaluated"],
+      default: "uploaded",
+    },
+
     marks: { type: Number, default: null },
-    evaluatedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Staff",
-    },
-    evaluatedAt: { type: Date },
-
-    // Revaluation
-    revaluationRequested: { type: Boolean, default: false },
-    revaluationMarks: { type: Number },
-    revaluatedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Staff",
-    },
-    revaluatedAt: { type: Date },
   },
   { timestamps: true }
 );

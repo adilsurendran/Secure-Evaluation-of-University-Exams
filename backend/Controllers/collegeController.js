@@ -297,3 +297,157 @@ export const deleteCollege = async (req, res) => {
     });
   }
 };
+
+
+import AnswerSheet from "../Models/AnswerSheet.js";
+import cloudinary from "../config/cloudinary.js";
+
+// export const uploadAnswerSheet = async (req, res) => {
+//   try {
+//     const { sessionId, examId, studentId, subjectId, collegeId } = req.body;
+
+//     if (!req.file) {
+//       return res.status(400).json({ msg: "PDF file required" });
+//     }
+
+//     // Prevent duplicate upload for the same exam + student
+//     const exists = await AnswerSheet.findOne({ examId, studentId });
+//     if (exists) {
+//       return res.status(400).json({
+//         msg: "Answer sheet already uploaded for this student & exam",
+//       });
+//     }
+
+//     // Upload to Cloudinary
+//     const uploaded = await cloudinary.uploader.upload_stream(
+//       {
+//         folder: "answer_sheets",
+//         resource_type: "raw", // MUST for PDF
+//         use_filename: true,
+//     unique_filename: false,
+//       },
+//       async (error, result) => {
+//         if (error) return res.status(500).json({ msg: "Cloudinary error", error });
+
+//         // Save record in DB
+//         const sheet = await AnswerSheet.create({
+//           sessionId,
+//           examId,
+//           studentId,
+//           subjectId,
+//           collegeId,
+//           fileUrl: result.secure_url,
+//         });
+
+//         return res.status(201).json({
+//           msg: "Answer sheet uploaded",
+//           sheet,
+//         });
+//       }
+//     );
+
+//     // Pipe buffer → cloudinary stream upload
+//     uploaded.end(req.file.buffer);
+
+//   } catch (err) {
+//     return res.status(500).json({ msg: "Server error", error: err.message });
+//   }
+// };
+
+export const uploadAnswerSheet = async (req, res) => {
+  try {
+    const { sessionId, examId, studentId, subjectId, collegeId } = req.body;
+
+    if (!req.file) {
+      return res.status(400).json({ msg: "PDF file required" });
+    }
+
+    // Prevent duplicate uploads
+    const exists = await AnswerSheet.findOne({ examId, studentId });
+    if (exists) {
+      return res.status(400).json({
+        msg: "Answer sheet already uploaded for this student & exam",
+      });
+    }
+
+    // Convert upload_stream to Promise
+    const uploadToCloudinary = () => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: "answer_sheets",
+            resource_type: "raw",
+            public_id: req.file.originalname.replace(/\.[^/.]+$/, ""), 
+            format: "pdf",  // FORCE PDF EXTENSION
+            use_filename: true,     // KEEP original filename
+            unique_filename: false, // DO NOT randomize filename
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+
+        stream.end(req.file.buffer);
+      });
+    };
+
+    // Upload file
+    const uploadedFile = await uploadToCloudinary();
+
+    // Save to DB
+    const sheet = await AnswerSheet.create({
+      sessionId,
+      examId,
+      studentId,
+      subjectId,
+      collegeId,
+      fileUrl: uploadedFile.secure_url,
+      originalName: req.file.originalname,
+    });
+
+    return res.status(201).json({
+      msg: "Answer sheet uploaded",
+      sheet,
+    });
+
+  } catch (err) {
+    console.log("UPLOAD ERROR:", err);
+    return res.status(500).json({
+      msg: "Server error",
+      error: err.message,
+    });
+  }
+};
+
+
+
+export const getSheetsByCollege = async (req, res) => {
+  try {
+    const sheets = await AnswerSheet.find({ collegeId: req.params.collegeId })
+      .populate("studentId", "name admissionNo")
+      .populate("subjectId", "subjectName subjectCode")
+      .populate("examId")
+      .populate("sessionId");
+
+    return res.json(sheets);
+  } catch (err) {
+    return res.status(500).json({ msg: "Server error", error: err.message });
+  }
+};
+
+export const deleteSheet = async (req, res) => {
+  try {
+    const sheet = await AnswerSheet.findById(req.params.id);
+
+    if (!sheet) return res.status(404).json({ msg: "Sheet not found" });
+
+    // NOTE: Cloudinary delete optional (needs public_id)
+    await AnswerSheet.findByIdAndDelete(req.params.id);
+
+    return res.json({ msg: "Answer sheet deleted" });
+
+  } catch (err) {
+    return res.status(500).json({ msg: "Server error", error: err.message });
+  }
+};

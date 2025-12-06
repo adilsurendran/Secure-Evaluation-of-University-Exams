@@ -38,6 +38,7 @@ import StudentResults from './components/student/StudentResults';
 import StudentRevaluation from './components/student/StudentRevaluation';
 import StudentAnswerCopyRequest from './components/student/StudentAnswerCopyRequest';
 import StudentDashboard from './components/student/StudentDashboard';
+import UploadAnswerSheet from './components/college/UploadAnswerSheet';
 
 
 function App() {
@@ -76,7 +77,7 @@ function App() {
           <Route path="staff" element={<ManageStaff/>} />
           <Route path="staff/add" element={<AddStaff/>} />
           <Route path="staff/edit/:id" element={<EditStaff/>} />
-          <Route path="upload-answer" element={<div>Upload Answer Sheets</div>} />
+          <Route path="upload-answer" element={<UploadAnswerSheet/>} />
           <Route path="results" element={<div>View Results</div>} />
           <Route path="revaluation" element={<div>Revaluation Requests</div>} />
         </Route>
