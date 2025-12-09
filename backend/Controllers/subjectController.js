@@ -5,7 +5,7 @@ import Subject from "../Models/Subject.js";
 // ==========================
 export const addSubject = async (req, res) => {
   try {
-    const { subjectCode, subjectName, course, semester } = req.body;
+    const { subjectCode, subjectName, course, semester, total_mark } = req.body;
 
     const exists = await Subject.findOne({ subjectCode });
 
@@ -17,6 +17,7 @@ export const addSubject = async (req, res) => {
       subjectName,
       course,
       semester,
+      total_mark
     });
 
     res.status(201).json({ msg: "Subject created successfully", subject });

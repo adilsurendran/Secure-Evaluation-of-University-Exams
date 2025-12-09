@@ -95,7 +95,7 @@ function UploadAnswerSheet() {
       });
 
       alert("Answer Sheet Uploaded Successfully!");
-      navigate("/college/uploaded-sheets");
+      navigate("/college/upload-answer");
     } catch (err) {
       console.log(err);
       alert("Upload failed");

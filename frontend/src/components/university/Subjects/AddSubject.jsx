@@ -12,6 +12,7 @@ function AddSubject() {
     subjectName: "",
     course: "",
     semester: "",
+    total_mark: ""
   });
 
   const handleSubmit = async (e) => {
@@ -59,6 +60,15 @@ function AddSubject() {
             placeholder="Semester"
             onChange={(e) =>
               setForm({ ...form, semester: e.target.value })
+            }
+            required
+          />
+
+          <input
+            type="number"
+            placeholder="Total mark"
+            onChange={(e) =>
+              setForm({ ...form, total_mark: e.target.value })
             }
             required
           />

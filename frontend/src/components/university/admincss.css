@@ -636,3 +636,8 @@ select:focus {
 .dropdown-item:hover {
   background: #eee;
 }
+
+.btn-blue { background: #005eff; color: #fff; padding: 6px 12px; border-radius: 4px; }
+.btn-green { background: #0f9d58; color: #fff; padding: 6px 12px; border-radius: 4px; }
+.text-orange { color: orange; font-weight: bold; }
+.text-green { color: #0f9d58; font-weight: bold; }

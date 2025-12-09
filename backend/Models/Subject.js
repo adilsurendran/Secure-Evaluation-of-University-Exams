@@ -6,6 +6,7 @@ const subjectSchema = new mongoose.Schema(
     subjectName: { type: String, required: true },
     course: { type: String, required: true },
     semester: { type: Number, required: true, min: 1, max: 12 },
+    total_mark:{type:Number, required:true}
   },
   { timestamps: true }
 );

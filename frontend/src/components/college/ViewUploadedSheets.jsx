@@ -1,10 +1,8 @@
 // src/components/college/ViewUploadedSheets.jsx
 import React, { useEffect, useState } from "react";
 import api from "../../../api";
-import { useNavigate } from "react-router-dom";
 
 function ViewUploadedSheets() {
-  const navigate = useNavigate();
   const collegeId = localStorage.getItem("collegeId");
 
   const [sheets, setSheets] = useState([]);
@@ -17,22 +15,22 @@ function ViewUploadedSheets() {
   });
 
   // =====================================================
-  // LOAD ALL DATA: sessions, students, answer sheets
+  // LOAD ALL DATA
   // =====================================================
   useEffect(() => {
     const loadData = async () => {
       try {
         const [sessRes, studentRes, sheetRes] = await Promise.all([
-          api.get("/exam-sessions/all"),
-          api.get(`/student/college/${collegeId}`),
-          api.get(`/answers/college/${collegeId}`),
+          api.get("/colleges/exam-sessions/all"),
+          api.get(`/colleges/student/college/${collegeId}`),
+          api.get(`/colleges/answers/college/${collegeId}`),
         ]);
 
         setSessions(sessRes.data);
         setStudents(studentRes.data);
         setSheets(sheetRes.data);
       } catch (err) {
-        console.log(err);
+        console.log("LOAD ERROR", err);
       }
     };
 
@@ -40,7 +38,7 @@ function ViewUploadedSheets() {
   }, []);
 
   // =====================================================
-  // FILTER FUNCTION
+  // FILTERING
   // =====================================================
   const filteredSheets = sheets.filter((s) => {
     const bySession =
@@ -59,12 +57,33 @@ function ViewUploadedSheets() {
     if (!window.confirm("Delete this uploaded sheet?")) return;
 
     try {
-      await api.delete(`/answers/${id}`);
+      await api.delete(`/colleges/answers/${id}`);
       setSheets(sheets.filter((s) => s._id !== id));
     } catch (err) {
-      console.log(err);
+      console.log("DELETE ERROR", err);
     }
   };
+
+  // =====================================================
+  // OPEN SECURE SIGNED PDF LINK
+  // =====================================================
+  const openPdf = async (encryptedId) => {
+    try {
+      const res = await api.get(
+        `/colleges/answers/signed-url/${encryptedId}`
+      );
+
+      if (res.data?.url) {
+        window.open(res.data.url, "_blank");
+      } else {
+        alert("Unable to load PDF");
+      }
+    } catch (err) {
+      console.log("SIGNED URL ERROR", err);
+      alert("Failed to open secure PDF");
+    }
+  };
+// console.log(filteredSheets);
 
   return (
     <div className="college-page">
@@ -75,7 +94,6 @@ function ViewUploadedSheets() {
 
       {/* FILTERS */}
       <div className="filters-row">
-        {/* FILTER BY SESSION */}
         <select
           value={filters.sessionId}
           onChange={(e) =>
@@ -90,7 +108,6 @@ function ViewUploadedSheets() {
           ))}
         </select>
 
-        {/* FILTER BY STUDENT */}
         <select
           value={filters.studentId}
           onChange={(e) =>
@@ -123,7 +140,9 @@ function ViewUploadedSheets() {
 
           <tbody>
             {filteredSheets.map((s, i) => (
+              
               <tr key={s._id}>
+                
                 <td>{i + 1}</td>
 
                 <td>
@@ -134,7 +153,9 @@ function ViewUploadedSheets() {
                   {s.subjectId?.subjectName} ({s.subjectId?.subjectCode})
                 </td>
 
-                <td>{new Date(s.examId?.examDate).toLocaleDateString()}</td>
+                <td>
+                  {new Date(s.examId?.examDate).toLocaleDateString()}
+                </td>
 
                 <td>
                   <span
@@ -149,14 +170,12 @@ function ViewUploadedSheets() {
                 </td>
 
                 <td>
-                  <a
-                    href={s.fileUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="view-link"
+                  <button
+                    className="view-link btn btn-primary"
+                    onClick={() => openPdf(s.filePublicId)} // 🔥 ENCRYPTED ID SENT
                   >
                     View PDF
-                  </a>
+                  </button>
                 </td>
 
                 <td>

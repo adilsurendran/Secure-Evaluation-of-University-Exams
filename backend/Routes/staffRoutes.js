@@ -24,6 +24,8 @@ import {
   getStaffById,
   updateStaff,
   deleteStaff,
+  getAssignedSheets,
+  evaluateSheet,
 } from "../Controllers/staffController.js";
 
 const staffRouter = express.Router();
@@ -33,5 +35,8 @@ staffRouter.get("/college/:collegeId", getStaffByCollege);
 staffRouter.get("/:id", getStaffById);       // <-- REQUIRED for EditStaff.jsx
 staffRouter.put("/update/:id", updateStaff);
 staffRouter.delete("/delete/:id", deleteStaff);
+
+staffRouter.get("/assigned/:staffId", getAssignedSheets);
+staffRouter.put("/evaluate/:sheetId", evaluateSheet);
 
 export default staffRouter;

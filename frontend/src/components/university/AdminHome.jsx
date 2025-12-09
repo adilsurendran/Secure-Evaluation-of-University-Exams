@@ -18,6 +18,7 @@ function AdminHome() {
           <li onClick={() => navigate("/admin/manage-colleges")}>Manage Colleges</li>
           <li onClick={() => navigate("/admin/exams")}>Manage Schedule Exams</li>
           <li onClick={() => navigate("/admin/exams/manage")}>Manage Exams</li>
+          <li onClick={() => navigate("/admin/assign/staff")}>Assign Staff to Evaluated</li>
           <li onClick={() => navigate("/admin/publish-results")}>Publish Results</li>
           <li onClick={() => navigate("/admin/auditing")}>Auditing</li>
           <li onClick={() => navigate("/admin/revaluation")}>Revaluation Requests</li>

@@ -7,7 +7,7 @@ function StaffSidebar() {
 
   const logout = () => {
     localStorage.removeItem("staffId");
-    navigate("/login");
+    navigate("/");
   };
 
   return (

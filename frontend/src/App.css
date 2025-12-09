@@ -124,3 +124,60 @@
   text-decoration: underline;
   color: #ffdd55;
 }
+/* DARK OVERLAY */
+.signup-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* IMPORTANT */
+}
+
+/* MODAL BOX */
+.signup-modal-box {
+  background: #fff;
+  width: 350px;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  animation: popup 0.2s ease-out;
+}
+
+/* BUTTON STYLING */
+.modal-btn {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  background: #007bff;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.modal-btn:hover {
+  opacity: 0.9;
+}
+
+.modal-close {
+  margin-top: 15px;
+  padding: 10px;
+  width: 100%;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* ANIMATION */
+@keyframes popup {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}

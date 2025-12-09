@@ -39,6 +39,9 @@ import StudentRevaluation from './components/student/StudentRevaluation';
 import StudentAnswerCopyRequest from './components/student/StudentAnswerCopyRequest';
 import StudentDashboard from './components/student/StudentDashboard';
 import UploadAnswerSheet from './components/college/UploadAnswerSheet';
+import ViewUploadedSheets from './components/college/ViewUploadedSheets';
+import UniversityAllocateDashboard from './components/university/UniversityAllocateDashboard';
+import StaffAssigned from './components/staff/StaffAssigned';
 
 
 function App() {
@@ -66,6 +69,7 @@ function App() {
           <Route path="/admin/college/edit/:id" element={<EditCollege />} />
           <Route path="/admin/exams/schedule" element={<ScheduleExam />} />
           <Route path="/admin/exams/manage" element={<ManageExams />} />
+          <Route path="/admin/assign/staff" element={<UniversityAllocateDashboard/>} />
         </Route>
 
         {/* college home page path should be /college/dashboard */}
@@ -78,13 +82,14 @@ function App() {
           <Route path="staff/add" element={<AddStaff/>} />
           <Route path="staff/edit/:id" element={<EditStaff/>} />
           <Route path="upload-answer" element={<UploadAnswerSheet/>} />
+          <Route path="manage-answer" element={<ViewUploadedSheets/>} />
           <Route path="results" element={<div>View Results</div>} />
           <Route path="revaluation" element={<div>Revaluation Requests</div>} />
         </Route>
 
         
 <Route path="/staff/home" element={<StaffHome />} />
-{/* <Route path="/staff/evaluate" element={<EvaluateAnswerSheets />} /> */}
+<Route path="/staff/evaluate" element={<StaffAssigned />} />
 {/* <Route path="/staff/history" element={<EvaluationHistory />} /> */}
 
 {/* NEW: Revaluation */}

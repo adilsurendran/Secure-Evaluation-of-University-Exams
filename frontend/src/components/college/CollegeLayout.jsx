@@ -16,6 +16,7 @@ function CollegeLayout() {
             <li><Link to="/college/students">Manage Students</Link></li>
             <li><Link to="/college/staff">Manage Staff</Link></li>
             <li><Link to="/college/upload-answer">Upload Answer Sheets</Link></li>
+            <li><Link to="/college/manage-answer">Manage Answer Sheets</Link></li>
             <li><Link to="/college/results">View Results</Link></li>
             <li><Link to="/college/revaluation">Revaluation Requests</Link></li>
           </ul>

@@ -313,3 +313,89 @@ export const deleteStaff = async (req, res) => {
     });
   }
 };
+
+
+import cloudinary from "../config/cloudinary.js";
+import { decrypt } from "../config/encryption.js";
+import AnswerSheet from "../Models/AnswerSheet.js";
+
+export const getAssignedSheets = async (req, res) => {
+
+  console.log(req.params.staffId,"gettttttttttttttttttttttttttttttttttttttttttt");
+  
+  try {
+    const sheets = await AnswerSheet.find({
+      assignedStaff: req.params.staffId,
+      status: { $in: ["assigned", "uploaded"] }
+    })
+      .populate("studentId", "name admissionNo")
+      .populate("subjectId", "subjectName subjectCode total_mark")
+      .populate("examId")
+      .populate("sessionId");
+
+    // 🔥 Build response with secure URLs
+    const finalSheets = sheets.map((s) => {
+      const decryptedId = decrypt(s.filePublicId);       // real public_id
+      const publicIdNoExt = decryptedId.replace(".pdf", "");
+
+      // Generate new signed temporary URL
+      const signedUrl = cloudinary.utils.private_download_url(
+        publicIdNoExt,
+        "pdf",
+        { resource_type: "raw" }
+      );
+
+      return {
+        ...s.toObject(),
+        fileUrl: signedUrl,  // ← FRONTEND CAN USE DIRECTLY
+      };
+    });
+
+    res.json(finalSheets);
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ msg: "Server error", error: err.message });
+  }
+};
+
+export const evaluateSheet = async (req, res) => {
+  try {
+    const { marks, status } = req.body;
+    const { sheetId } = req.params;
+
+    // 1. Validate marks
+    if (marks === undefined || marks === null || isNaN(marks)) {
+      return res.status(400).json({ msg: "Marks are required and must be a number" });
+    }
+
+    if (marks < 0) {
+      return res.status(400).json({ msg: "Marks cannot be negative" });
+    }
+
+    // 2. Fetch sheet
+    const sheet = await AnswerSheet.findById(sheetId);
+    if (!sheet) {
+      return res.status(404).json({ msg: "Sheet not found" });
+    }
+
+    // 3. Prevent double evaluation
+    if (sheet.status === "evaluated") {
+      return res.status(400).json({ msg: "This sheet is already evaluated" });
+    }
+
+    // 4. Update marks + status
+    sheet.marks = marks;
+    sheet.status = status || "evaluated";
+    await sheet.save();
+
+    res.json({
+      msg: "Evaluation completed",
+      updatedSheet: sheet
+    });
+
+  } catch (err) {
+    console.log("EVALUATION ERROR:", err);
+    res.status(500).json({ msg: "Server error", error: err.message });
+  }
+};
