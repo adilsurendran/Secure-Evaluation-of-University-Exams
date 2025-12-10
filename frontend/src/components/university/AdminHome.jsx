@@ -21,6 +21,7 @@ function AdminHome() {
           <li onClick={() => navigate("/admin/assign/staff")}>Assign Staff to Evaluated</li>
           <li onClick={() => navigate("/admin/publish-results")}>Publish Results</li>
           <li onClick={() => navigate("/admin/auditing")}>Auditing</li>
+          <li onClick={() => navigate("/admin/answersheetRequest")}>View Answer Sheet Req</li>
           <li onClick={() => navigate("/admin/revaluation")}>Revaluation Requests</li>
         </ul>
       </div>

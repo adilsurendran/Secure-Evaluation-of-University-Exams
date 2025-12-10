@@ -10,6 +10,11 @@ function PublishResults() {
   const [loadingStats, setLoadingStats] = useState(false);
   const [publishing, setPublishing] = useState(false);
 
+  const [pendingList, setPendingList] = useState([]);
+const [showPendingModal, setShowPendingModal] = useState(false);
+const [loadingPending, setLoadingPending] = useState(false);
+
+
   const [error, setError] = useState("");
 
   // ==========================
@@ -95,6 +100,27 @@ function PublishResults() {
     stats.totalSheets > 0 &&
     stats.pendingSheets === 0;
 
+
+    const loadPendingSheets = async () => {
+  if (!selectedSessionId) return;
+
+  setLoadingPending(true);
+
+  try {
+    const res = await api.get(`/university/pending-sheets/${selectedSessionId}`);
+    console.log(res);
+    
+    setPendingList(res.data);
+    setShowPendingModal(true);
+  } catch (err) {
+    console.log(err);
+    alert("Failed to load pending sheets");
+  } finally {
+    setLoadingPending(false);
+  }
+};
+
+
   return (
     <div className="university-page">
       {/* HEADER */}
@@ -153,12 +179,25 @@ function PublishResults() {
               <p className="text-green">{stats.evaluatedSheets}</p>
             </div>
 
-            <div className="card small-card">
+            {/* <div className="card small-card">
               <h4>Pending Evaluation</h4>
               <p className={stats.pendingSheets === 0 ? "text-green" : "text-orange"}>
                 {stats.pendingSheets}
               </p>
-            </div>
+            </div> */}
+
+            <div
+  className="card small-card"
+  style={{ cursor: "pointer" }}
+  onClick={() => loadPendingSheets()}
+>
+  <h4>Pending Evaluation</h4>
+  <p className={stats.pendingSheets === 0 ? "text-green" : "text-orange"}>
+    {stats.pendingSheets}
+  </p>
+  <h6>Click to view Pending details !!</h6>
+</div>
+
           </div>
 
           {/* PUBLISH BUTTON */}
@@ -192,6 +231,57 @@ function PublishResults() {
           Please select an exam session to view result status.
         </p>
       )}
+
+      {showPendingModal && (
+  <div className="modal-overlay">
+    <div className="modal-box">
+      <h3>Pending Evaluations</h3>
+
+      {loadingPending && <p>Loading...</p>}
+
+      {!loadingPending && pendingList.length === 0 && (
+        <p>No pending evaluations found.</p>
+      )}
+
+      {!loadingPending && pendingList.length > 0 && (
+        <table className="pending-table">
+          <thead>
+            <tr>
+              <th>Admission No</th>
+              <th>Student College</th>
+              <th>Subject</th>
+              <th>Staff Assigned</th>
+              <th>Staff College</th>
+              <th>Staff Phone</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pendingList.map((p) => (
+              <tr key={p._id}>
+                <td>{p.studentId?.admissionNo}</td>
+                <td>{p.studentId?.collegeId?.name}</td>
+                <td>{p.subjectId?.subjectName}</td>
+                <td>{p.assignedStaff ? p.assignedStaff.name : "Not Assigned"}</td>
+                <td>{p.assignedStaff?.collegeId?.name || "-"}</td>
+                <td>{p.assignedStaff?.phone}</td>
+                <td className="text-orange">{p.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      <button
+        className="btn-blue"
+        style={{ marginTop: "20px" }}
+        onClick={() => setShowPendingModal(false)}
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
     </div>
   );
 }

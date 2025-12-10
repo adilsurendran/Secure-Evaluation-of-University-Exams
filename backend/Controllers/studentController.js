@@ -220,3 +220,48 @@ export const getStudentExamSchedule = async (req, res) => {
     });
   }
 };
+
+
+// controllers/student.result.controller.js
+import Result from "../Models/Result.js";
+
+export const getStudentResults = async (req, res) => {
+  try {
+    const { studentId, sessionId } = req.params;
+
+    // Check if results are published for this session
+    const anyPublished = await Result.findOne({
+      studentId,
+      sessionId,
+      published: true,
+    });
+
+    if (!anyPublished) {
+      return res.status(200).json({
+        published: false,
+        msg: "Results not announced yet",
+        results: []
+      });
+    }
+
+    // Fetch all subject results
+    const results = await Result.find({
+      studentId,
+      sessionId
+    }).populate("subjectId");
+
+    const session = await ExamSession.findById(sessionId);
+
+    return res.json({
+      published: true,
+      session,
+      results
+    });
+
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ msg: err.message });
+  }
+};
+
+

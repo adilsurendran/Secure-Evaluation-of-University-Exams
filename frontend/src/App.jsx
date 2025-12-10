@@ -42,6 +42,8 @@ import UploadAnswerSheet from './components/college/UploadAnswerSheet';
 import ViewUploadedSheets from './components/college/ViewUploadedSheets';
 import UniversityAllocateDashboard from './components/university/UniversityAllocateDashboard';
 import StaffAssigned from './components/staff/StaffAssigned';
+import CollegeResultsDashboard from './components/college/CollegeResultsDashboard';
+import AdminAnswerCopyRequests from './components/university/AdminAnswerCopyRequests';
 
 
 function App() {
@@ -64,6 +66,7 @@ function App() {
           <Route path="revaluation" element={<Revaluation />} />
           <Route path="register-college" element={<RegisterCollege />} />
           <Route path="subjects" element={<SubjectList />} />
+          <Route path="answersheetRequest" element={<AdminAnswerCopyRequests />} />
           <Route path="subjects/add" element={<AddSubject />} />
           <Route path="subjects/edit/:id" element={<EditSubject />} />
           <Route path="/admin/college/edit/:id" element={<EditCollege />} />
@@ -83,7 +86,7 @@ function App() {
           <Route path="staff/edit/:id" element={<EditStaff/>} />
           <Route path="upload-answer" element={<UploadAnswerSheet/>} />
           <Route path="manage-answer" element={<ViewUploadedSheets/>} />
-          <Route path="results" element={<div>View Results</div>} />
+          <Route path="results" element={<CollegeResultsDashboard/>} />
           <Route path="revaluation" element={<div>Revaluation Requests</div>} />
         </Route>
 
@@ -101,7 +104,7 @@ function App() {
 <Route path="/student/home" element={<StudentDashboard/>} />
 <Route path="/student/profile" element={<StudentProfile />} />
 <Route path="/student/exam-schedule" element={<StudentExamSchedule />} />
-<Route path="/student/results" element={<StudentResults />} />
+<Route path="/student/results" element={<StudentResults/>} />
 <Route path="/student/revaluation" element={<StudentRevaluation />} />
 <Route path="/student/answer-copy" element={<StudentAnswerCopyRequest />} />
 

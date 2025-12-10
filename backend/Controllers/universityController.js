@@ -37,11 +37,86 @@ export const getSessionAllocationStats = async (req, res) => {
 };
 
 
+// export const allocateAnswerSheets = async (req, res) => {
+//   try {
+//     const sessionId = req.params.sessionId;
+
+//     // 1. Fetch all unassigned sheets for the session
+//     const sheets = await AnswerSheet.find({
+//       sessionId,
+//       assignedStaff: null
+//     })
+//       .populate("subjectId")
+//       .populate("studentId");
+
+//     if (sheets.length === 0) {
+//       return res.json({ msg: "No unassigned sheets found" });
+//     }
+
+//     // 2. Preload all staff
+//     const allStaff = await Staff.find().populate("subjects");
+
+//     // Track allocation load
+//     const staffLoad = {}; // { staffId: count }
+
+//     let assignedCount = 0;
+
+//     // Start allocation
+//     for (const sheet of sheets) {
+//       const subjectId = sheet.subjectId._id.toString();
+//       const studentCollege = sheet.studentId.collegeId.toString();
+
+//       // 3. Filter eligible staff
+//       const eligibleStaff = allStaff.filter(st => {
+//         const teachesSubject = st.subjects.some(
+//           (sub) => sub._id.toString() === subjectId
+//         );
+
+//         const notFromSameCollege =
+//           st.collegeId.toString() !== studentCollege;
+
+//         return teachesSubject && notFromSameCollege;
+//       });
+
+//       if (eligibleStaff.length === 0) {
+//         console.log("NO staff found for subject:", sheet.subjectId.subjectName);
+//         continue;
+//       }
+
+//       // 4. Apply round-robin — select staff with minimum load
+//       eligibleStaff.sort((a, b) => {
+//         const loadA = staffLoad[a._id] || 0;
+//         const loadB = staffLoad[b._id] || 0;
+//         return loadA - loadB;
+//       });
+
+//       const assignedStaff = eligibleStaff[0];
+
+//       // 5. Assign
+//       sheet.assignedStaff = assignedStaff._id;
+//       sheet.status = "assigned";
+//       await sheet.save();
+
+//       // Increment load
+//       staffLoad[assignedStaff._id] =
+//         (staffLoad[assignedStaff._id] || 0) + 1;
+
+//       assignedCount++;
+//     }
+
+//     return res.json({
+//       msg: `Allocation completed`,
+//       allocated: assignedCount,
+//     });
+//   } catch (err) {
+//     return res.status(500).json({ msg: err.message });
+//   }
+// };
+
 export const allocateAnswerSheets = async (req, res) => {
   try {
     const sessionId = req.params.sessionId;
 
-    // 1. Fetch all unassigned sheets for the session
     const sheets = await AnswerSheet.find({
       sessionId,
       assignedStaff: null
@@ -53,20 +128,15 @@ export const allocateAnswerSheets = async (req, res) => {
       return res.json({ msg: "No unassigned sheets found" });
     }
 
-    // 2. Preload all staff
     const allStaff = await Staff.find().populate("subjects");
 
-    // Track allocation load
-    const staffLoad = {}; // { staffId: count }
-
+    const staffLoad = {};
     let assignedCount = 0;
 
-    // Start allocation
     for (const sheet of sheets) {
       const subjectId = sheet.subjectId._id.toString();
       const studentCollege = sheet.studentId.collegeId.toString();
 
-      // 3. Filter eligible staff
       const eligibleStaff = allStaff.filter(st => {
         const teachesSubject = st.subjects.some(
           (sub) => sub._id.toString() === subjectId
@@ -75,7 +145,9 @@ export const allocateAnswerSheets = async (req, res) => {
         const notFromSameCollege =
           st.collegeId.toString() !== studentCollege;
 
-        return teachesSubject && notFromSameCollege;
+        const isAvailable = st.available === true; // <-- NEW CONDITION
+
+        return teachesSubject && notFromSameCollege && isAvailable;
       });
 
       if (eligibleStaff.length === 0) {
@@ -83,7 +155,6 @@ export const allocateAnswerSheets = async (req, res) => {
         continue;
       }
 
-      // 4. Apply round-robin — select staff with minimum load
       eligibleStaff.sort((a, b) => {
         const loadA = staffLoad[a._id] || 0;
         const loadB = staffLoad[b._id] || 0;
@@ -92,12 +163,10 @@ export const allocateAnswerSheets = async (req, res) => {
 
       const assignedStaff = eligibleStaff[0];
 
-      // 5. Assign
       sheet.assignedStaff = assignedStaff._id;
       sheet.status = "assigned";
       await sheet.save();
 
-      // Increment load
       staffLoad[assignedStaff._id] =
         (staffLoad[assignedStaff._id] || 0) + 1;
 
@@ -112,6 +181,7 @@ export const allocateAnswerSheets = async (req, res) => {
     return res.status(500).json({ msg: err.message });
   }
 };
+
 
 
 
@@ -155,11 +225,54 @@ export const getResultStats = async (req, res) => {
 // ======================================================================
 // PUBLISH RESULTS
 // ======================================================================
+// export const publishResults = async (req, res) => {
+//   try {
+//     const sessionId = req.params.sessionId;
+
+//     // 1️⃣ Load all evaluated answer sheets
+//     const evaluatedSheets = await AnswerSheet.find({
+//       sessionId,
+//       status: "evaluated"
+//     })
+//       .populate("studentId")
+//       .populate("subjectId");
+
+//     if (evaluatedSheets.length === 0) {
+//       return res.status(400).json({ msg: "No evaluated sheets to publish" });
+//     }
+
+//     // 2️⃣ Convert into Result model entries
+//     const results = evaluatedSheets.map((sheet) => ({
+//       sessionId,
+//       studentId: sheet.studentId._id,
+//       subjectId: sheet.subjectId._id,
+//       marks: sheet.marks,
+//       totalMark: sheet.subjectId.total_mark,
+//       published: true
+//     }));
+
+//     // 3️⃣ Remove old published results for this session (if republishing)
+//     await Result.deleteMany({ sessionId });
+
+//     // 4️⃣ Save all results
+//     await Result.insertMany(results);
+
+//     return res.json({
+//       msg: "Results published successfully",
+//       publishedCount: results.length
+//     });
+
+//   } catch (err) {
+//     console.log("PUBLISH RESULT ERROR:", err);
+//     return res.status(500).json({ msg: err.message });
+//   }
+// };
+
 export const publishResults = async (req, res) => {
   try {
     const sessionId = req.params.sessionId;
 
-    // 1️⃣ Load all evaluated answer sheets
+    // Fetch evaluated sheets
     const evaluatedSheets = await AnswerSheet.find({
       sessionId,
       status: "evaluated"
@@ -171,20 +284,21 @@ export const publishResults = async (req, res) => {
       return res.status(400).json({ msg: "No evaluated sheets to publish" });
     }
 
-    // 2️⃣ Convert into Result model entries
-    const results = evaluatedSheets.map((sheet) => ({
+    // Convert to result entries
+    const results = evaluatedSheets.map(sheet => ({
       sessionId,
       studentId: sheet.studentId._id,
+      collegeId: sheet.studentId.collegeId,    // <-- ADDED HERE
       subjectId: sheet.subjectId._id,
       marks: sheet.marks,
       totalMark: sheet.subjectId.total_mark,
       published: true
     }));
 
-    // 3️⃣ Remove old published results for this session (if republishing)
+    // Remove old results for re-publishing
     await Result.deleteMany({ sessionId });
 
-    // 4️⃣ Save all results
+    // Insert all new results
     await Result.insertMany(results);
 
     return res.json({
@@ -197,3 +311,35 @@ export const publishResults = async (req, res) => {
     return res.status(500).json({ msg: err.message });
   }
 };
+
+
+// GET pending sheets for a session
+export const getPendingSheets = async (req, res) => {
+  try {
+    const sessionId = req.params.sessionId;
+    // console.log(sessionId);
+    
+
+    const pending = await AnswerSheet.find({
+      sessionId,
+      status: { $ne: "evaluated" }
+    })
+      .populate({
+        path: "studentId",
+        populate: { path: "collegeId" }
+      })
+      .populate({
+        path: "assignedStaff",
+        populate: { path: "collegeId" }
+      })
+      .populate("subjectId");
+
+      // console.log(pending);
+
+    return res.json(pending);
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
+  }
+};
+
+

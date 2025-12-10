@@ -14,6 +14,12 @@ const resultSchema = new mongoose.Schema(
       required: true,
     },
 
+    collegeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "College",
+      required: true,
+    },
+
     subjectId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Subject",

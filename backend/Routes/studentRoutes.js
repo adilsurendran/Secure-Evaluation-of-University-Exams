@@ -7,7 +7,9 @@ import {
   updateStudent,
   deleteStudent,
   getStudentExamSchedule,
+  getStudentResults,
 } from "../Controllers/studentController.js";
+import { studentAnswerCopyOptions, studentCreateAnswerCopyRequest, studentGetCopyPdf, studentGetMyCopyRequests } from "../Controllers/answerCopyController.js";
 
 const studentRouter = express.Router();
 
@@ -18,5 +20,33 @@ studentRouter.put("/update/:id", updateStudent);
 studentRouter.delete("/delete/:id", deleteStudent);
 
 studentRouter.get("/exam-schedule/:studentId", getStudentExamSchedule);
+
+studentRouter.get("/results/:studentId/:sessionId", getStudentResults);
+
+/* ==== ANSWER COPY REQUESTS (STUDENT) ==== */
+
+// list options (sessions+exams where answer sheet exists)
+studentRouter.get(
+  "/answer-copy/options/:studentId",
+  studentAnswerCopyOptions
+);
+
+// create request
+studentRouter.post(
+  "/answer-copy/request",
+  studentCreateAnswerCopyRequest
+);
+
+// my requests
+studentRouter.get(
+  "/answer-copy/my-requests/:studentId",
+  studentGetMyCopyRequests
+);
+
+// get signed URL for approved request
+studentRouter.get(
+  "/answer-copy/pdf/:requestId",
+  studentGetCopyPdf
+);
 
 export default studentRouter;

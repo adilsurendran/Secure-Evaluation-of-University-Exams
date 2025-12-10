@@ -26,6 +26,25 @@ function ManageStaff() {
     setStaff(staff.filter((s) => s._id !== id));
   };
 
+  const toggleAvailability = async (item) => {
+  const newStatus = !item.available;
+
+  const confirmMsg = newStatus 
+    ? "Mark this staff as AVAILABLE?" 
+    : "Mark this staff as NOT AVAILABLE?";
+
+  if (!window.confirm(confirmMsg)) return;
+
+  const res = await api.put(`/staff/availability/${item._id}`, {
+    available: newStatus
+  });
+
+  setStaff(staff.map((s) =>
+    s._id === item._id ? { ...s, available: newStatus } : s
+  ));
+};
+
+
   return (
     <div className="college-page">
       <div className="college-header">
@@ -65,14 +84,38 @@ function ManageStaff() {
                     </span>
                   ))}
                 </td>
-                <td>
+                {/* <td>
                   <button onClick={() => navigate(`/college/staff/edit/${s._id}`)} className="delete-btn">
                     Edit
                   </button>
                   <button onClick={() => deleteStaff(s._id)} className="delete-btn">
                     Delete
                   </button>
-                </td>
+                </td> */}
+                <td>
+  <button 
+    onClick={() => navigate(`/college/staff/edit/${s._id}`)} 
+    className="delete-btn"
+  >
+    Edit
+  </button>
+
+  <button 
+    onClick={() => deleteStaff(s._id)} 
+    className="delete-btn"
+  >
+    Delete
+  </button>
+
+  {/* NEW AVAILABILITY BUTTON */}
+  <button
+    onClick={() => toggleAvailability(s)}
+    className={s.available ? "delete-btn bg-green-600" : "delete-btn bg-red-600"}
+  >
+    {s.available ? "Available" : "Unavailable"}
+  </button>
+</td>
+
               </tr>
             ))}
           </tbody>

@@ -243,6 +243,8 @@ export const getSignedPdfUrl = async (req, res) => {
   try {
     const encryptedPath = req.params.encrypted;
     const publicId = decrypt(encryptedPath);
+    console.log("decrypted public",publicId);
+    
 
     // FIXED: use private_download_url instead of signed_url
     const signedUrl = cloudinary.utils.private_download_url(
@@ -255,7 +257,7 @@ export const getSignedPdfUrl = async (req, res) => {
       }
     );
 
-    // console.log("SIGNED:", signedUrl);
+    console.log("SIGNED:", signedUrl);
 
     return res.json({ url: signedUrl });
 
@@ -264,7 +266,7 @@ export const getSignedPdfUrl = async (req, res) => {
     return res.status(500).json({ msg: err.message });
   }
 };
-
+ 
 
 export const deleteSheet = async (req, res) => {
   try {
@@ -296,3 +298,28 @@ export const deleteSheet = async (req, res) => {
   }
 };
 
+
+import Result from "../Models/Result.js";
+
+export const getCollegeResults = async (req, res) => {
+  try {
+    const { collegeId } = req.params;
+    const { sessionId, subjectId } = req.query;
+
+    let filter = { collegeId, published: true };
+
+    if (sessionId) filter.sessionId = sessionId;
+    if (subjectId) filter.subjectId = subjectId;
+
+    const results = await Result.find(filter)
+      .populate("studentId", "name admissionNo")
+      .populate("subjectId", "subjectCode subjectName total_mark")
+      .populate("sessionId", "name academicYear semester");
+
+    return res.json(results);
+
+  } catch (err) {
+    console.log("COLLEGE RESULTS ERROR:", err);
+    return res.status(500).json({ msg: "Server error" });
+  }
+};

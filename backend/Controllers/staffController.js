@@ -292,6 +292,29 @@ export const updateStaff = async (req, res) => {
   }
 };
 
+
+export const updateAvailability = async (req, res) => {
+  try {
+    const staffId = req.params.id;
+    const { available } = req.body; // true or false
+
+    const staff = await Staff.findByIdAndUpdate(
+      staffId,
+      { available },
+      { new: true }
+    );
+
+    if (!staff) {
+      return res.status(404).json({ msg: "Staff not found" });
+    }
+
+    return res.json({ msg: "Availability updated", staff });
+  } catch (err) {
+    return res.status(500).json({ msg: err.message });
+  }
+};
+
+
 /* ======================================================
     DELETE STAFF
 ====================================================== */
@@ -344,7 +367,8 @@ export const getAssignedSheets = async (req, res) => {
         "pdf",
         { resource_type: "raw" }
       );
-
+      console.log(signedUrl);
+      
       return {
         ...s.toObject(),
         fileUrl: signedUrl,  // ← FRONTEND CAN USE DIRECTLY

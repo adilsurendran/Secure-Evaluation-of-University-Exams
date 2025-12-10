@@ -21,6 +21,7 @@ const staffSchema = new mongoose.Schema(
     ],
 
     password: { type: String, required: true },
+    available:{ type: Boolean, default: true },
     commonKey :{type:mongoose.Schema.Types.ObjectId,ref:"Login"}
   },
   { timestamps: true }
