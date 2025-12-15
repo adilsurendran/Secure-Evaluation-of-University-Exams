@@ -82,24 +82,60 @@ export const getStudentRequests = async (req, res) => {
 // ADMIN: list (filterable)
 // GET /revaluation/admin/all?status=pending
 // ---------------------------
+// export const adminListRequests = async (req, res) => {
+//   try {
+//     const filter = {};
+//     if (req.query.status) filter.status = req.query.status;
+
+//     const requests = await RevaluationRequest.find(filter)
+//       .populate("studentId", "name admissionNo collegeId")
+//       .populate("answerSheetId", "marks examId")
+//       .populate("subjectId", "subjectName subjectCode")
+//       .populate("assignedStaff", "name phone")
+//       .populate("sessionId", "name");
+
+//     return res.json(requests);
+//   } catch (err) {
+//     console.log("ADMIN LIST REQ ERROR:", err);
+//     return res.status(500).json({ msg: err.message });
+//   }
+// };
+
 export const adminListRequests = async (req, res) => {
   try {
+    const { status, sessionId } = req.query;
+
     const filter = {};
-    if (req.query.status) filter.status = req.query.status;
+
+    // ✅ filter by status
+    if (status) {
+      filter.status = status;
+    }
+
+    // ✅ filter by session
+    if (sessionId) {
+      filter.sessionId = sessionId;
+    }
 
     const requests = await RevaluationRequest.find(filter)
       .populate("studentId", "name admissionNo collegeId")
-      .populate("answerSheetId", "marks examId")
+      .populate({
+        path: "studentId",
+        populate: { path: "collegeId", select: "name" }
+      })
       .populate("subjectId", "subjectName subjectCode")
-      .populate("assignedStaff", "name phone")
-      .populate("sessionId", "name");
+      .populate("sessionId", "name academicYear semester")
+      .sort({ createdAt: -1 });
 
     return res.json(requests);
+
   } catch (err) {
-    console.log("ADMIN LIST REQ ERROR:", err);
+    console.error("ADMIN LIST REQ ERROR:", err);
     return res.status(500).json({ msg: err.message });
   }
 };
+
+
 
 // ---------------------------
 // ADMIN: approve a request
@@ -424,7 +460,7 @@ export const getEvaluatedRevaluation = async (req, res) => {
 
     const list = await RevaluationRequest.find({
       sessionId,
-      status: "evaluated",         // Only evaluated and ready for publish
+      status: "completed",         // Only evaluated and ready for publish
       paymentStatus: "paid"
     })
       .populate("studentId", "name admissionNo collegeId")
@@ -452,10 +488,12 @@ export const getEvaluatedRevaluation = async (req, res) => {
 export const publishRevaluationResults = async (req, res) => {
   try {
     const { sessionId } = req.params;
+    console.log(sessionId);
+    
 
     const evaluated = await RevaluationRequest.find({
       sessionId,
-      status: "evaluated",
+      status: "completed",
       paymentStatus: "paid"
     })
       .populate("studentId")
@@ -467,14 +505,29 @@ export const publishRevaluationResults = async (req, res) => {
     if (evaluated.length === 0)
       return res.status(400).json({ msg: "No evaluated revaluation cases to publish" });
 
+    // const results = evaluated.map(r => ({
+    //   sessionId,
+    //   studentId: r.studentId._id,
+    //   collegeId: r.studentId.collegeId,
+    //   subjectId: r.subjectId._id,
+    //   oldMarks,               // updated mark
+    //   totalMark: r.subjectId.total_mark,
+    //   published: true
+    // }));
+
     const results = evaluated.map(r => ({
       sessionId,
       studentId: r.studentId._id,
       collegeId: r.studentId.collegeId,
       subjectId: r.subjectId._id,
-      // oldMarks:                // updated mark
+
+      // ✅ REQUIRED FIELDS
+      oldMarks: r.oldMarks,
+      newMarks: r.newMarks,
       totalMark: r.subjectId.total_mark,
-      published: true
+
+      published: true,
+      remarks: r.staffRemarks || ""
     }));
 
     await RevaluationResult.deleteMany({ sessionId });

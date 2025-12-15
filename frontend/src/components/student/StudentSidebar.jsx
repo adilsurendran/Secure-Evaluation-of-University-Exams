@@ -7,7 +7,7 @@ function StudentSidebar() {
 
   const logout = () => {
     localStorage.removeItem("studentId");
-    navigate("/login");
+    navigate("/");
   };
 
   return (

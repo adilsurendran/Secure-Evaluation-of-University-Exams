@@ -30,7 +30,7 @@ export default function AdminPublishRevaluation() {
     setLoading(true);
     try {
       const res = await api.get(`/revaluation/admin/evaluated/${id}`);
-      console.log(res,id);
+      // console.log(res,id);
       
       setList(res.data);
     } catch (err) {
