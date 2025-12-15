@@ -9,6 +9,7 @@ import examrouter from "./Routes/examRoutes.js";
 import staffRouter from "./Routes/staffRoutes.js";
 import studentRouter from "./Routes/studentRoutes.js";
 import universityRouter from "./Routes/universityRoutes.js";
+import router from "./Routes/revaluationRoutes.js";
 
 
 
@@ -29,4 +30,6 @@ server.use("/api/exams", examrouter);
 server.use("/api/staff", staffRouter);
 server.use("/api/student", studentRouter);
 server.use("/api/university", universityRouter);
+server.use("/api/revaluation", router);
+
 

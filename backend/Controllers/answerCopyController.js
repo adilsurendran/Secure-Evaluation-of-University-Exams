@@ -383,3 +383,12 @@ export const adminRejectAnswerCopyRequest = async (req, res) => {
     return res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
+
+
+export const getStudentEvaluatedSheetsForExam = async (req,res) => {
+  const { studentId, examId } = req.params;
+  const sheets = await AnswerSheet.find({ studentId, examId, status: "evaluated" })
+    .populate("subjectId", "subjectName subjectCode total_mark")
+    .populate("examId", "examDate");
+  return res.json(sheets);
+};

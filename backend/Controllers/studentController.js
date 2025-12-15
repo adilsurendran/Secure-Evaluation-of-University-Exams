@@ -226,6 +226,8 @@ export const getStudentExamSchedule = async (req, res) => {
 import Result from "../Models/Result.js";
 
 export const getStudentResults = async (req, res) => {
+  console.log("hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+  
   try {
     const { studentId, sessionId } = req.params;
 
@@ -265,3 +267,83 @@ export const getStudentResults = async (req, res) => {
 };
 
 
+// controllers/studentResultController.js
+
+export const getStudentResultSessions = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    const sessions = await Result.find({
+      studentId,
+      published: true
+    }).distinct("sessionId");
+
+    const sessionDocs = await ExamSession.find({
+      _id: { $in: sessions }
+    }).sort({ createdAt: -1 });
+
+    res.json(sessionDocs);
+
+  } catch (err) {
+    console.error("GET RESULT SESSIONS ERROR:", err);
+    res.status(500).json({ msg: "Failed to load sessions" });
+  }
+};
+
+// controllers/studentResultController.js
+import RevaluationResult from "../Models/RevaluationResult.js";
+
+export const getStudentMarksheet = async (req, res) => {
+  try {
+    const { studentId, sessionId } = req.params;
+
+    // Original published results
+    const originals = await Result.find({
+      studentId,
+      sessionId,
+      published: true
+    }).populate("subjectId");
+
+    if (originals.length === 0) {
+      return res.json({
+        published: false,
+        msg: "Result not announced yet"
+      });
+    }
+
+    // Published revaluation results
+    const revals = await RevaluationResult.find({
+      studentId,
+      sessionId,
+      published: true
+    });
+
+    const session = await ExamSession.findById(sessionId);
+
+    const subjects = originals.map(o => {
+      const rv = revals.find(
+        r => String(r.subjectId) === String(o.subjectId._id)
+      );
+
+      return {
+        subjectName: o.subjectId.subjectName,
+        subjectCode: o.subjectId.subjectCode,
+        totalMark: o.totalMark,
+        original: { marks: o.marks },
+        revaluation: rv
+          ? { newMarks: rv.newMarks }
+          : null
+      };
+    });
+
+    res.json({
+      published: true,
+      session,
+      subjects
+    });
+
+  } catch (err) {
+    console.error("GET MARKSHEET ERROR:", err);
+    res.status(500).json({ msg: "Failed to load marksheet" });
+  }
+};

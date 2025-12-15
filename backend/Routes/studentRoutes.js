@@ -8,8 +8,10 @@ import {
   deleteStudent,
   getStudentExamSchedule,
   getStudentResults,
+  getStudentMarksheet,
+  getStudentResultSessions,
 } from "../Controllers/studentController.js";
-import { studentAnswerCopyOptions, studentCreateAnswerCopyRequest, studentGetCopyPdf, studentGetMyCopyRequests } from "../Controllers/answerCopyController.js";
+import { getStudentEvaluatedSheetsForExam, studentAnswerCopyOptions, studentCreateAnswerCopyRequest, studentGetCopyPdf, studentGetMyCopyRequests } from "../Controllers/answerCopyController.js";
 
 const studentRouter = express.Router();
 
@@ -18,6 +20,15 @@ studentRouter.get("/college/:collegeId", getStudentsByCollege);
 studentRouter.get("/:id", getStudentById);
 studentRouter.put("/update/:id", updateStudent);
 studentRouter.delete("/delete/:id", deleteStudent);
+studentRouter.get(
+  "/results/sessions/:studentId",
+  getStudentResultSessions
+);
+
+studentRouter.get(
+  "/results/marksheet/:studentId/:sessionId",
+  getStudentMarksheet
+);
 
 studentRouter.get("/exam-schedule/:studentId", getStudentExamSchedule);
 
@@ -48,5 +59,7 @@ studentRouter.get(
   "/answer-copy/pdf/:requestId",
   studentGetCopyPdf
 );
+
+studentRouter.get("/evaluated-sheets/:studentId/:examId", getStudentEvaluatedSheetsForExam);
 
 export default studentRouter;

@@ -35,7 +35,6 @@ import StaffHome from './components/staff/StaffHome';
 import StudentProfile from './components/student/StudentProfile';
 import StudentExamSchedule from './components/student/StudentExamSchedule';
 import StudentResults from './components/student/StudentResults';
-import StudentRevaluation from './components/student/StudentRevaluation';
 import StudentAnswerCopyRequest from './components/student/StudentAnswerCopyRequest';
 import StudentDashboard from './components/student/StudentDashboard';
 import UploadAnswerSheet from './components/college/UploadAnswerSheet';
@@ -44,6 +43,12 @@ import UniversityAllocateDashboard from './components/university/UniversityAlloc
 import StaffAssigned from './components/staff/StaffAssigned';
 import CollegeResultsDashboard from './components/college/CollegeResultsDashboard';
 import AdminAnswerCopyRequests from './components/university/AdminAnswerCopyRequests';
+import StudentRevaluationRequest from './components/student/StudentRevaluationRequest';
+import StudentRevaluationStatus from './components/student/StudentRevalStatus';
+import AdminRevaluationList from './components/university/AdminRevalList';
+import StaffRevaluationEvaluate from './components/staff/StaffRevaluationAssigned';
+import StudentRevaluationResults from './components/student/StudentRevaluationResults';
+import AdminPublishRevaluation from './components/university/AdminPublishRevaluation';
 
 
 function App() {
@@ -63,7 +68,8 @@ function App() {
           <Route path="exams/add-session" element={<CreateExamSession />} />
           <Route path="publish-results" element={<PublishResults />} />
           <Route path="auditing" element={<Auditing />} />
-          <Route path="revaluation" element={<Revaluation />} />
+          <Route path="revaluation" element={<AdminRevaluationList />} />
+          <Route path="revaluation/result" element={<AdminPublishRevaluation />} />
           <Route path="register-college" element={<RegisterCollege />} />
           <Route path="subjects" element={<SubjectList />} />
           <Route path="answersheetRequest" element={<AdminAnswerCopyRequests />} />
@@ -96,7 +102,7 @@ function App() {
 {/* <Route path="/staff/history" element={<EvaluationHistory />} /> */}
 
 {/* NEW: Revaluation */}
-{/* <Route path="/staff/revaluation" element={<RevaluationList />} /> */}
+<Route path="/staff/revaluation" element={<StaffRevaluationEvaluate />} />
 {/* <Route path="/staff/revaluation/:id" element={<RevaluationEvaluate />} /> */}
 
 
@@ -105,7 +111,9 @@ function App() {
 <Route path="/student/profile" element={<StudentProfile />} />
 <Route path="/student/exam-schedule" element={<StudentExamSchedule />} />
 <Route path="/student/results" element={<StudentResults/>} />
-<Route path="/student/revaluation" element={<StudentRevaluation />} />
+<Route path="/student/results/revaluation" element={<StudentRevaluationResults/>} />
+<Route path="/student/revaluation" element={<StudentRevaluationRequest />} />
+<Route path="/student/revaluation-view" element={<StudentRevaluationStatus />} />
 <Route path="/student/answer-copy" element={<StudentAnswerCopyRequest />} />
 
 

@@ -19,7 +19,9 @@ function StudentSidebar() {
         <li onClick={() => navigate("/student/profile")}>Profile</li>
         <li onClick={() => navigate("/student/exam-schedule")}>Exam Schedule</li>
         <li onClick={() => navigate("/student/results")}>Results</li>
+        <li onClick={() => navigate("/student/results/revaluation")}>Revaluation Results</li>
         <li onClick={() => navigate("/student/revaluation")}>Revaluation Request</li>
+        <li onClick={() => navigate("/student/revaluation-view")}>view revaluation</li>
         <li onClick={() => navigate("/student/answer-copy")}>Answer Sheet Copy Request</li>
       </ul>
 

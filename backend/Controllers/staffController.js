@@ -245,6 +245,8 @@ export const getStaffById = async (req, res) => {
 
     return res.json(staff);
   } catch (err) {
+    console.log(err);
+    
     return res.status(500).json({
       msg: "Server error",
       error: err.message,
@@ -423,3 +425,4 @@ export const evaluateSheet = async (req, res) => {
     res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
+
