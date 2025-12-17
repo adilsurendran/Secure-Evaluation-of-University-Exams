@@ -300,6 +300,9 @@ export const deleteSheet = async (req, res) => {
 
 
 import Result from "../Models/Result.js";
+import RevaluationResult from "../Models/RevaluationResult.js";
+import Student from "../Models/Student.js";
+import Staff from "../Models/Staff.js";
 
 export const getCollegeResults = async (req, res) => {
   try {
@@ -323,3 +326,53 @@ export const getCollegeResults = async (req, res) => {
     return res.status(500).json({ msg: "Server error" });
   }
 };
+// export const getCollegeRevaluationResults =async(req,res)=>{
+//   const{collegeId}= req.params;
+//   const{sessionId,subjectId} = req.query;
+//   // console.log(collegeId,sessionId,subjectId);
+  
+// }
+
+export const getCollegeRevaluationResults = async (req, res) => {
+  try {
+    const { collegeId } = req.params;
+    const { sessionId, subjectId } = req.query;
+
+    let filter = {
+      collegeId,
+      published: true
+    };
+
+    if (sessionId) filter.sessionId = sessionId;
+    if (subjectId) filter.subjectId = subjectId;
+
+    const results = await RevaluationResult.find(filter)
+      .populate("studentId", "name admissionNo")
+      .populate("subjectId", "subjectCode subjectName")
+      .populate("sessionId", "name academicYear semester");
+
+    return res.json(results);
+
+  } catch (err) {
+    console.error("COLLEGE REVALUATION RESULTS ERROR:", err);
+    return res.status(500).json({ msg: "Server error" });
+  }
+};
+
+export const getDashboardDetails = async(req,res)=>{
+  try{
+    const{id} = req.params
+        if (!id) return res.status(404).json({ msg: "College id not found" });
+
+    // console.log(id);
+    const student = await Student.countDocuments({collegeId:id})
+    const staff = await Staff.countDocuments({collegeId:id})
+    
+    return res.status(200).json({message:"fetched successfully", student,staff})
+  }
+  catch(e){
+    console.log(e);
+    return res.status(500).json({ msg: "Server error" });
+
+  }
+}

@@ -10,6 +10,8 @@ import {
   deleteSheet,
   getSignedPdfUrl,
   getCollegeResults,
+  getCollegeRevaluationResults,
+  getDashboardDetails,
 } from "../Controllers/collegeController.js";
 import upload from "../middleware/upload.js";
 import { getStudentsByCollege } from "../Controllers/studentController.js";
@@ -44,4 +46,6 @@ collegeRouter.get("/answers/signed-url/:encrypted", getSignedPdfUrl);
 collegeRouter.delete("/answers/:id", deleteSheet);
 
 collegeRouter.get("/results/:collegeId", getCollegeResults);
+collegeRouter.get("/revaluation-results/:collegeId",getCollegeRevaluationResults)
+collegeRouter.get("/details/:id", getDashboardDetails)
 export default collegeRouter;

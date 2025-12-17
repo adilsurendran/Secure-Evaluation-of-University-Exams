@@ -27,6 +27,7 @@ import {
   getAssignedSheets,
   evaluateSheet,
   updateAvailability,
+  EvaluationHistory,
 } from "../Controllers/staffController.js";
 
 const staffRouter = express.Router();
@@ -39,5 +40,6 @@ staffRouter.delete("/delete/:id", deleteStaff);
 staffRouter.put("/availability/:id", updateAvailability);
 staffRouter.get("/assigned/:staffId", getAssignedSheets);
 staffRouter.put("/evaluate/:sheetId", evaluateSheet);
+staffRouter.get("/evalhistory/:id",EvaluationHistory)
 
 export default staffRouter;

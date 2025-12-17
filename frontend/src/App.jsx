@@ -13,7 +13,6 @@ import Dashboard from './components/university/Dashboard';
 import ManageColleges from './components/university/ManageColleges';
 import Exams from './components/university/Exams';
 import PublishResults from './components/university/PublishResults';
-import Auditing from './components/university/Auditing';
 import Revaluation from './components/university/Revaluation';
 import SubjectList from './components/university/Subjects/SubjectList';
 import AddSubject from './components/university/Subjects/AddSubject';
@@ -49,6 +48,11 @@ import AdminRevaluationList from './components/university/AdminRevalList';
 import StaffRevaluationEvaluate from './components/staff/StaffRevaluationAssigned';
 import StudentRevaluationResults from './components/student/StudentRevaluationResults';
 import AdminPublishRevaluation from './components/university/AdminPublishRevaluation';
+import StaffHistory from './components/staff/StaffHistory';
+import CollegeViewRevaluationResult from './components/college/CollegeViewRevaluationResult';
+import Notification from './components/university/Notification';
+import ViewNotification from './components/college/ViewNotification';
+import ViewNotifications from './components/student/ViewNotification';
 
 
 function App() {
@@ -64,10 +68,10 @@ function App() {
         <Route path="/admin" element={<AdminHome />}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="manage-colleges" element={<ManageColleges />} />
+          <Route path='notification' element={<Notification/>}></Route>
           <Route path="exams" element={<ManageExamSessions />} />
           <Route path="exams/add-session" element={<CreateExamSession />} />
           <Route path="publish-results" element={<PublishResults />} />
-          <Route path="auditing" element={<Auditing />} />
           <Route path="revaluation" element={<AdminRevaluationList />} />
           <Route path="revaluation/result" element={<AdminPublishRevaluation />} />
           <Route path="register-college" element={<RegisterCollege />} />
@@ -93,13 +97,14 @@ function App() {
           <Route path="upload-answer" element={<UploadAnswerSheet/>} />
           <Route path="manage-answer" element={<ViewUploadedSheets/>} />
           <Route path="results" element={<CollegeResultsDashboard/>} />
-          <Route path="revaluation" element={<div>Revaluation Requests</div>} />
+          <Route path="revaluation" element={<CollegeViewRevaluationResult/>} />
+          <Route path="notification" element={<ViewNotification/>} />
         </Route>
 
         
 <Route path="/staff/home" element={<StaffHome />} />
 <Route path="/staff/evaluate" element={<StaffAssigned />} />
-{/* <Route path="/staff/history" element={<EvaluationHistory />} /> */}
+<Route path="/staff/history" element={<StaffHistory />} />
 
 {/* NEW: Revaluation */}
 <Route path="/staff/revaluation" element={<StaffRevaluationEvaluate />} />
@@ -115,6 +120,7 @@ function App() {
 <Route path="/student/revaluation" element={<StudentRevaluationRequest />} />
 <Route path="/student/revaluation-view" element={<StudentRevaluationStatus />} />
 <Route path="/student/answer-copy" element={<StudentAnswerCopyRequest />} />
+<Route path="/student/notification" element={<ViewNotifications />} />
 
 
 

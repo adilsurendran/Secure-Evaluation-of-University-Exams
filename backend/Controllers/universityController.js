@@ -187,6 +187,8 @@ export const allocateAnswerSheets = async (req, res) => {
 
 import Result from "../Models/Result.js";
 import Subject from "../Models/Subject.js";
+import NOTIFICATION from "../Models/Notification.js";
+import Student from "../Models/Student.js";
 
 
 // ======================================================================
@@ -343,3 +345,168 @@ export const getPendingSheets = async (req, res) => {
 };
 
 
+export const postNotifiaction = async(req,res)=>{
+  try{
+const {message,semester}= req.body
+// console.log(message,Semester);
+const newNotification = await NOTIFICATION.create({
+message,semester
+})
+return res.status(200).json({message:"Notification Sent Successfully",newNotification})
+  }
+  catch(e){
+    console.log(e);
+        return res.status(500).json({ msg: e.message });
+
+  }
+}
+
+export const allnotifications = async(req,res)=>{
+  try{
+    const all = await NOTIFICATION.find().sort({createdAt: -1})
+    return res.status(200).json({message:"Notification get Successfully",notifications:all})
+
+  }
+  catch(e){
+    console.log(e);
+        return res.status(500).json({ msg: e.message });
+
+  }
+}
+
+export const deleteNotification = async(req,res)=>{
+  try{
+    const {id}= req.params
+    console.log(id);
+    const deleted = await NOTIFICATION.findByIdAndDelete(id)
+
+        return res.status(200).json({message:"Notification deleted Successfully",deleted})
+
+  }
+  catch(e){
+    console.log(e);
+            return res.status(500).json({ msg: e.message });
+
+  }
+}
+
+// export const studentNotifications = async(req,res)=>{
+//   try{
+//     const {id} = req.params
+//     const sem = await Student.findById(id).select("semester -_id")
+//     const semester = sem.semester
+//     console.log(semester);
+    
+//     const notifications = await NOTIFICATION.find({semester})
+//     console.log(notifications);
+    
+    
+//   }
+//   catch(e){
+//     console.log(e);
+    
+//   }
+// }
+
+
+// export const studentNotifications = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+
+//     // 1️⃣ Get student's semester
+//     const student = await Student.findById(id).select("semester");
+
+//     if (!student) {
+//       return res.status(404).json({ message: "Student not found" });
+//     }
+
+//     const semester = Number(student.semester); // ensure number
+//     // console.log("Student semester:", semester);
+//     console.log("Raw student semester:", student.semester);
+// console.log("Type:", typeof student.semester);
+
+// console.log(semester,'dddddddddddddd');
+
+//     // 2️⃣ Fetch notifications for that semester
+//     const notifications = await NOTIFICATION.find({ semester })
+//       // .sort({ createdAt: -1 });
+//       console.log(notifications);
+      
+
+//     // 3️⃣ Send response
+//     return res.status(200).json({
+//       semester,
+//       notifications
+//     });
+
+//   } catch (e) {
+//     console.error("STUDENT NOTIFICATION ERROR:", e);
+//     return res.status(500).json({ message: "Server error" });
+//   }
+// };
+
+
+
+export const studentNotifications = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // -----------------------------------------
+    // 1. Fetch student semester safely
+    // -----------------------------------------
+    const student = await Student.findById(id).select("semester").lean();
+console.log(student,'student');
+
+    if (!student || student.semester === undefined || student.semester === null) {
+      return res.status(404).json({
+        message: "Student not found or semester missing"
+      });
+    }
+
+    // Normalize semester (string, trimmed)
+    const semester = String(student.semester).trim();
+
+    // -----------------------------------------
+    // 2. DEBUG LOGS (remove after confirmation)
+    // -----------------------------------------
+    // console.log("Student semester value:", student.semester);
+    // console.log("Normalized semester:", semester);
+    // console.log("Notification collection:", NOTIFICATION.collection.name);
+
+    // -----------------------------------------
+    // 3. Fetch ALL notifications (sanity check)
+    // -----------------------------------------
+    // const allNotifications = await NOTIFICATION.find();
+    // console.log("ALL notifications count:", allNotifications.length);
+
+    // -----------------------------------------
+    // 4. Semester-safe query (handles string/number/space)
+    // -----------------------------------------
+    const notifications = await NOTIFICATION.find({
+      $expr: {
+        $eq: [
+          { $trim: { input: { $toString: "$semester" } } },
+          semester
+        ]
+      }
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // -----------------------------------------
+    // 5. Final response
+    // -----------------------------------------
+    return res.status(200).json({
+      semester,
+      count: notifications.length,
+      notifications
+    });
+
+  } catch (error) {
+    console.error("STUDENT NOTIFICATION ERROR:", error);
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message
+    });
+  }
+};

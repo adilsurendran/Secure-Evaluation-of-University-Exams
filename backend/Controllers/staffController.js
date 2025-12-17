@@ -343,6 +343,7 @@ export const deleteStaff = async (req, res) => {
 import cloudinary from "../config/cloudinary.js";
 import { decrypt } from "../config/encryption.js";
 import AnswerSheet from "../Models/AnswerSheet.js";
+import RevaluationRequest from "../Models/RevaluationRequest.js";
 
 export const getAssignedSheets = async (req, res) => {
 
@@ -426,3 +427,28 @@ export const evaluateSheet = async (req, res) => {
   }
 };
 
+export const EvaluationHistory = async(req,res)=>{
+  try{
+    // console.log(req);
+    
+    const {id} = req.params
+    const {selected} = req.query
+    console.log(id,selected);
+    
+    if(selected === "valuation"){
+      const history = await AnswerSheet.find({assignedStaff:id}).populate("sessionId", "name").populate("subjectId", "subjectCode subjectName")
+          return res.status(200).json({message:"Fetched evaltion history Successfull", history})
+
+    }
+    if(selected === "revaluation"){
+      const history = await RevaluationRequest.find({assignedStaff:id}).populate("sessionId", "name").populate("subjectId","subjectCode subjectName")
+       
+          return res.status(200).json({message:"Fetched revaluation history Successfully", history})
+    }
+  }
+  catch(error){
+    console.log(error);
+    res.status(500).json({ msg: "Server error", error: error.message });
+    
+  }
+}

@@ -23,6 +23,7 @@ function StudentSidebar() {
         <li onClick={() => navigate("/student/revaluation")}>Revaluation Request</li>
         <li onClick={() => navigate("/student/revaluation-view")}>view revaluation</li>
         <li onClick={() => navigate("/student/answer-copy")}>Answer Sheet Copy Request</li>
+        <li onClick={() => navigate("/student/notification")}>Notification</li>
       </ul>
 
       <button className="logout-btn" onClick={logout}>Logout</button>

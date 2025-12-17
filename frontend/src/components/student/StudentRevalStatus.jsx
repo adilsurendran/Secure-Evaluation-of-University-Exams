@@ -175,7 +175,8 @@ export default function StudentRevaluationStatus() {
   // ================================
   // PAYMENT HANDLER
   // ================================
-  const handlePayment = async (reqId, amount) => {
+  const handlePayment = async (reqId, amount, status) => {
+    if ( status === "rejected"){return alert("Your request is rejected by Univerysity, Contact immeadiatly!!")}
     if (!window.confirm(`Pay ₹${amount} for revaluation?`)) return;
 
     try {
@@ -234,10 +235,10 @@ export default function StudentRevaluationStatus() {
 
                 <td>
                   {/* SHOW PAY BUTTON ONLY IF PAYMENT IS PENDING */}
-                  {r.paymentStatus === "pending" ? (
+                  {r.paymentStatus === "pending"  ? (
                     <button
                       className="btn-blue"
-                      onClick={() => handlePayment(r._id, r.feeAmount)}
+                      onClick={() => handlePayment(r._id, r.feeAmount, r.status)}
                     >
                       Pay Now
                     </button>
