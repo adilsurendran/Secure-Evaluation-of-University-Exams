@@ -53,6 +53,8 @@ import CollegeViewRevaluationResult from './components/college/CollegeViewRevalu
 import Notification from './components/university/Notification';
 import ViewNotification from './components/college/ViewNotification';
 import ViewNotifications from './components/student/ViewNotification';
+import StudentComplaints from './components/student/StudentComplaints';
+import UniversityComplaints from './components/university/UniversityComplaints';
 
 
 function App() {
@@ -69,6 +71,7 @@ function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="manage-colleges" element={<ManageColleges />} />
           <Route path='notification' element={<Notification/>}></Route>
+          <Route path='complaints' element={<UniversityComplaints/>}></Route>
           <Route path="exams" element={<ManageExamSessions />} />
           <Route path="exams/add-session" element={<CreateExamSession />} />
           <Route path="publish-results" element={<PublishResults />} />
@@ -121,6 +124,7 @@ function App() {
 <Route path="/student/revaluation-view" element={<StudentRevaluationStatus />} />
 <Route path="/student/answer-copy" element={<StudentAnswerCopyRequest />} />
 <Route path="/student/notification" element={<ViewNotifications />} />
+<Route path="/student/complaint" element={<StudentComplaints />} />
 
 
 

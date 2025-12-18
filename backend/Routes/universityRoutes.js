@@ -1,6 +1,6 @@
 // routes/universityRoutes.js
 import express from "express";
-import { allnotifications, allocateAnswerSheets, deleteNotification, getPendingSheets, getResultStats, getSessionAllocationStats, postNotifiaction, publishResults, studentNotifications } from "../Controllers/universityController.js";
+import { allnotifications, allocateAnswerSheets, deleteNotification, fetchCounts, getComplaints, getPendingSheets, getResultStats, getSessionAllocationStats, postNotifiaction, publishResults, replayComplaints, studentNotifications } from "../Controllers/universityController.js";
 import { adminApproveAnswerCopyRequest, adminListAnswerCopyRequests, adminRejectAnswerCopyRequest } from "../Controllers/answerCopyController.js";
 
 const universityRouter = express.Router();
@@ -37,4 +37,9 @@ universityRouter.post('/sendntification',postNotifiaction)
 universityRouter.get('/getnotification',allnotifications)
 universityRouter.delete("/delete/:id",deleteNotification)
 universityRouter.get("/getnotifications/:id",studentNotifications)
+
+universityRouter.get("/complaints", getComplaints)
+universityRouter.put("/complaints/:complaintId/reply", replayComplaints)
+
+universityRouter.get("/dashboard-counts",fetchCounts)
 export default universityRouter;

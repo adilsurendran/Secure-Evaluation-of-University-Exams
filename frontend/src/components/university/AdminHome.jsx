@@ -25,6 +25,8 @@ function AdminHome() {
           <li onClick={() => navigate("/admin/answersheetRequest")}>View Answer Sheet Req</li>
           <li onClick={() => navigate("/admin/revaluation")}>Revaluation Requests</li>
           <li onClick={() => navigate("/admin/notification")}>Notification</li>
+          <li onClick={() => navigate("/admin/complaints")}>Complaints</li>
+          <li onClick={()=> navigate("/")} className="bg-danger" style={{textAlign:"center"}}><b>Logout</b></li>
         </ul>
       </div>
 

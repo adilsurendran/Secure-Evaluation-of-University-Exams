@@ -50,6 +50,7 @@ const answerCopyRequestSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    paymentStatus:{type:String,required:true,enum:["pending","completed"],default:"pending"}
   },
   { timestamps: true }
 );

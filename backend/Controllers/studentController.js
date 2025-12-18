@@ -292,6 +292,7 @@ export const getStudentResultSessions = async (req, res) => {
 
 // controllers/studentResultController.js
 import RevaluationResult from "../Models/RevaluationResult.js";
+import Complaint from "../Models/Complaints.js";
 
 export const getStudentMarksheet = async (req, res) => {
   try {
@@ -347,3 +348,48 @@ export const getStudentMarksheet = async (req, res) => {
     res.status(500).json({ msg: "Failed to load marksheet" });
   }
 };
+
+export const postComplaint = async(req,res)=>{
+  const {studentId,complaint}= req.body
+  console.log(req.body);
+  
+  try{
+    const college = await Student.findById(studentId).select("collegeId -_id")
+    // console.log(college.collegeId);
+    
+    const newComplaint = await Complaint.create({
+      studentId,
+      collegeId:college.collegeId,
+      complaint
+    })
+      return res.status(201).json({
+      msg: "Student registered successfully",
+      newComplaint,
+    });
+
+  } catch (err) {
+    return res.status(500).json({
+      msg: "Server error",
+      error: err.message,
+    });
+  }  
+
+}
+
+export const getComplaint=async(req,res)=>{
+  try{
+    const {id} = req.params
+    console.log(id);
+    const complaints = await Complaint.find({studentId:id})
+          return res.status(201).json({
+      msg: "Student registered successfully",
+      complaints,
+    });
+  }
+  catch (err) {
+    return res.status(500).json({
+      msg: "Server error",
+      error: err.message,
+    });
+  }  
+}

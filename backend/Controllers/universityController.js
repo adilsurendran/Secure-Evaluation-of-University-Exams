@@ -189,6 +189,9 @@ import Result from "../Models/Result.js";
 import Subject from "../Models/Subject.js";
 import NOTIFICATION from "../Models/Notification.js";
 import Student from "../Models/Student.js";
+import Complaint from "../Models/Complaints.js";
+import College from "../Models/College.js";
+import Exam from "../Models/Exam.js";
 
 
 // ======================================================================
@@ -510,3 +513,63 @@ console.log(student,'student');
     });
   }
 };
+
+export const getComplaints = async(req,res)=>{
+  const{status} = req.query
+  // console.log(status);
+  try{
+    const complaints = await Complaint.find({status}).populate("studentId","name").populate("collegeId","name")
+    // console.log(complaints);
+    return res.status(200).json({
+      complaints
+    });
+    
+  }
+  catch(e){
+    console.log(e);
+    return res.status(500).json({
+      message: "Server error",
+      error: e.message
+    });
+  }
+}
+
+
+export const replayComplaints =async(req,res)=>{
+  
+  // console.log(complaintId,reply,status);
+  try{
+    const {complaintId} = req.params
+  const {reply,status}= req.body
+    const replyed = await Complaint.findByIdAndUpdate(complaintId,{status,reply})
+    return res.status(200).json({
+      replyed
+    });
+  }
+   catch(e){
+    console.log(e);
+    return res.status(500).json({
+      message: "Server error",
+      error: e.message
+    });
+  }
+}
+
+export const fetchCounts = async(req,res)=>{
+  try{
+const subjects = await Subject.countDocuments()
+const colleges = await College.countDocuments()
+const sessions = await ExamSession.countDocuments()
+const exams = await Exam.countDocuments()
+ return res.status(200).json({
+      subjects,colleges,sessions,exams
+    });
+  }
+  catch(e){
+    console.log(e);
+    return res.status(500).json({
+      message: "Server error",
+      error: e.message
+    });
+  }
+}

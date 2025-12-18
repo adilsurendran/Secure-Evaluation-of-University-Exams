@@ -36,7 +36,7 @@ function SubjectList() {
         </button>
       </div>
 
-      <div className="card">
+      <div className="mt-3">
         <table className="admin-table">
           <thead>
             <tr>

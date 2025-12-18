@@ -10,6 +10,8 @@ import {
   getStudentResults,
   getStudentMarksheet,
   getStudentResultSessions,
+  postComplaint,
+  getComplaint,
 } from "../Controllers/studentController.js";
 import { getStudentEvaluatedSheetsForExam, studentAnswerCopyOptions, studentCreateAnswerCopyRequest, studentGetCopyPdf, studentGetMyCopyRequests } from "../Controllers/answerCopyController.js";
 
@@ -62,4 +64,6 @@ studentRouter.get(
 
 studentRouter.get("/evaluated-sheets/:studentId/:examId", getStudentEvaluatedSheetsForExam);
 
+studentRouter.post("/complaints", postComplaint)
+studentRouter.get("/complaints/:id", getComplaint)
 export default studentRouter;
