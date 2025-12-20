@@ -9,9 +9,9 @@ function StudentDashboard() {
 
   const [student, setStudent] = useState(null);
   const [upcomingExams, setUpcomingExams] = useState([]);
-  const [recentResults, setRecentResults] = useState([]);
-  const [revaluationCount, setRevaluationCount] = useState(0);
-  const [answerCopyCount, setAnswerCopyCount] = useState(0);
+  // const [recentResults, setRecentResults] = useState([]);
+  // const [revaluationCount, setRevaluationCount] = useState(0);
+  // const [answerCopyCount, setAnswerCopyCount] = useState(0);
 
   // --------------------------------------------
   // LOAD ALL DASHBOARD DATA
@@ -25,19 +25,21 @@ function StudentDashboard() {
 
         // 2️⃣ Upcoming Exams
         const exams = await api.get(`/student/exam-schedule/${studentId}`);
+        // console.log(exams);
+        
         setUpcomingExams(exams.data.slice(0, 3)); // show only top 3
 
         // 3️⃣ Latest Results
-        const results = await api.get(`/student/results/${studentId}`);
-        setRecentResults(results.data.slice(0, 3)); // show only top 3
+        // const results = await api.get(`/student/results/${studentId}`);
+        // setRecentResults(results.data.slice(0, 3)); // show only top 3
 
         // 4️⃣ Revaluation Requests Count
-        const reval = await api.get(`/student/revaluation/status/${studentId}`);
-        setRevaluationCount(reval.data.count || 0);
+        // const reval = await api.get(`/student/revaluation/status/${studentId}`);
+        // setRevaluationCount(reval.data.count || 0);
 
         // 5️⃣ Answer Copy Request Count
-        const copies = await api.get(`/student/answercopy/status/${studentId}`);
-        setAnswerCopyCount(copies.data.count || 0);
+        // const copies = await api.get(`/student/answercopy/status/${studentId}`);
+        // setAnswerCopyCount(copies.data.count || 0);
       } catch (err) {
         console.log(err);
       }
@@ -65,20 +67,20 @@ function StudentDashboard() {
           <p>{upcomingExams.length}</p>
         </div>
 
-        <div className="dash-card">
+        {/* <div className="dash-card">
           <h3>Recent Results</h3>
           <p>{recentResults.length}</p>
-        </div>
+        </div> */}
 
-        <div className="dash-card">
+        {/* <div className="dash-card">
           <h3>Revaluation Requests</h3>
           <p>{revaluationCount}</p>
-        </div>
+        </div> */}
 
-        <div className="dash-card">
+        {/* <div className="dash-card">
           <h3>Answer Copy Requests</h3>
           <p>{answerCopyCount}</p>
-        </div>
+        </div> */}
 
       </div>
 
@@ -110,7 +112,7 @@ function StudentDashboard() {
       </div>
 
       {/* Recent Results Table */}
-      <div className="section">
+      {/* <div className="section">
         <h3>Recent Results</h3>
 
         {recentResults.length === 0 ? (
@@ -135,7 +137,7 @@ function StudentDashboard() {
             </tbody>
           </table>
         )}
-      </div>
+      </div> */}
     </StudentLayout>
   );
 }

@@ -39,7 +39,7 @@ import ExamSession from "../Models/ExamSession.js";
  */
 export const createExamSession = async (req, res) => {
   try {
-    const { name, academicYear, semester, startDate, endDate, subjects, courses } = req.body;
+    const { name, academicYear, semester, startDate, endDate, subjects } = req.body;
 
     // Basic validation
     if (!name || !academicYear || !semester || !startDate || !endDate) {
@@ -67,7 +67,6 @@ export const createExamSession = async (req, res) => {
       startDate,
       endDate,
       subjects: subjects || [],
-      courses: courses || [],
     });
 
     return res.status(201).json({

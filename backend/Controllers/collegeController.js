@@ -203,32 +203,52 @@ export const uploadAnswerSheet = async (req, res) => {
 };
 
 
+// export const getSheetsByCollege = async (req, res) => {
+//   try {
+//     const sheets = await AnswerSheet.find({ collegeId: req.params.collegeId })
+//       .populate("studentId", "name admissionNo")
+//       .populate("subjectId", "subjectName subjectCode")
+//       .populate("examId")
+//       .populate("sessionId");
+
+//     const finalSheets = sheets.map((s) => {
+//       const realPublicId = decrypt(s.filePublicId);
+//       // console.log(s.filePublicId);
+//       // console.log(realPublicId);
+      
+      
+
+//       const signedUrl = cloudinary.utils.private_download_url(
+//         realPublicId,
+//         "pdf",
+//         {
+//           type: "authenticated",
+//           expires_at: Math.floor(Date.now() / 1000) + 3600 // 1 hour
+//         }
+//       );
+
+//       return { ...s.toObject(), fileUrl: signedUrl };
+//     });
+
+//     res.json(finalSheets);
+
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).json({ msg: "Server error", error: err.message });
+//   }
+// };
 export const getSheetsByCollege = async (req, res) => {
   try {
-    const sheets = await AnswerSheet.find({ collegeId: req.params.collegeId })
+    const sheets = await AnswerSheet.find({
+      collegeId: req.params.collegeId
+    })
       .populate("studentId", "name admissionNo")
       .populate("subjectId", "subjectName subjectCode")
       .populate("examId")
       .populate("sessionId");
 
-    const finalSheets = sheets.map((s) => {
-      const realPublicId = decrypt(s.filePublicId);
-      // console.log(s.filePublicId);
-      // console.log(realPublicId);
-      
-      
-
-      const signedUrl = cloudinary.utils.private_download_url(
-        realPublicId,
-        "pdf",
-        {
-          type: "authenticated",
-          expires_at: Math.floor(Date.now() / 1000) + 3600 // 1 hour
-        }
-      );
-
-      return { ...s.toObject(), fileUrl: signedUrl };
-    });
+    // 1 hour expiry (same as before)
+    const finalSheets = attachSignedUrlsToSheets(sheets, 60 * 60);
 
     res.json(finalSheets);
 
@@ -238,26 +258,42 @@ export const getSheetsByCollege = async (req, res) => {
   }
 };
 
-
-export const getSignedPdfUrl = async (req, res) => {
-  try {
-    const encryptedPath = req.params.encrypted;
-    const publicId = decrypt(encryptedPath);
-    console.log("decrypted public",publicId);
+// export const getSignedPdfUrl = async (req, res) => {
+//   try {
+//     const encryptedPath = req.params.encrypted;
+//     const publicId = decrypt(encryptedPath);
+//     console.log("decrypted public",publicId);
     
 
-    // FIXED: use private_download_url instead of signed_url
-    const signedUrl = cloudinary.utils.private_download_url(
-      publicId,
-      "pdf",      // file format
-      {
-        resource_type: "raw",
-        type: "authenticated",
-        expires_at: Math.floor(Date.now() / 1000) + 60 * 5 // 5 minutes
-      }
-    );
+//     // FIXED: use private_download_url instead of signed_url
+//     const signedUrl = cloudinary.utils.private_download_url(
+//       publicId,
+//       "pdf",      // file format
+//       {
+//         resource_type: "raw",
+//         type: "authenticated",
+//         expires_at: Math.floor(Date.now() / 1000) + 60 * 5 // 5 minutes
+//       }
+//     );
 
-    console.log("SIGNED:", signedUrl);
+//     console.log("SIGNED:", signedUrl);
+
+//     return res.json({ url: signedUrl });
+
+//   } catch (err) {
+//     console.log("SIGNED URL ERROR:", err);
+//     return res.status(500).json({ msg: err.message });
+//   }
+// };
+ 
+export const getSignedPdfUrl = async (req, res) => {
+  try {
+    const { encrypted } = req.params;
+
+    const signedUrl = generateSignedPdfUrl(
+      encrypted,
+      5 * 60 // 5 minutes
+    );
 
     return res.json({ url: signedUrl });
 
@@ -266,7 +302,6 @@ export const getSignedPdfUrl = async (req, res) => {
     return res.status(500).json({ msg: err.message });
   }
 };
- 
 
 export const deleteSheet = async (req, res) => {
   try {
@@ -303,6 +338,7 @@ import Result from "../Models/Result.js";
 import RevaluationResult from "../Models/RevaluationResult.js";
 import Student from "../Models/Student.js";
 import Staff from "../Models/Staff.js";
+import { attachSignedUrlsToSheets, generateSignedPdfUrl } from "../utils/signedUrlUtils.js";
 
 export const getCollegeResults = async (req, res) => {
   try {

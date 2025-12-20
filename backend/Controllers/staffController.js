@@ -344,11 +344,50 @@ import cloudinary from "../config/cloudinary.js";
 import { decrypt } from "../config/encryption.js";
 import AnswerSheet from "../Models/AnswerSheet.js";
 import RevaluationRequest from "../Models/RevaluationRequest.js";
+import { attachSignedUrlsToSheets } from "../utils/signedUrlUtils.js";
+
+// export const getAssignedSheets = async (req, res) => {
+
+//   console.log(req.params.staffId,"gettttttttttttttttttttttttttttttttttttttttttt");
+  
+//   try {
+//     const sheets = await AnswerSheet.find({
+//       assignedStaff: req.params.staffId,
+//       status: { $in: ["assigned", "uploaded"] }
+//     })
+//       .populate("studentId", "name admissionNo")
+//       .populate("subjectId", "subjectName subjectCode total_mark")
+//       .populate("examId")
+//       .populate("sessionId");
+
+//     // 🔥 Build response with secure URLs
+//     const finalSheets = sheets.map((s) => {
+//       const decryptedId = decrypt(s.filePublicId);       // real public_id
+//       const publicIdNoExt = decryptedId.replace(".pdf", "");
+
+//       // Generate new signed temporary URL
+//       const signedUrl = cloudinary.utils.private_download_url(
+//         publicIdNoExt,
+//         "pdf",
+//         { resource_type: "raw" }
+//       );
+//       console.log(signedUrl);
+      
+//       return {
+//         ...s.toObject(),
+//         fileUrl: signedUrl,  // ← FRONTEND CAN USE DIRECTLY
+//       };
+//     });
+
+//     res.json(finalSheets);
+
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).json({ msg: "Server error", error: err.message });
+//   }
+// };
 
 export const getAssignedSheets = async (req, res) => {
-
-  console.log(req.params.staffId,"gettttttttttttttttttttttttttttttttttttttttttt");
-  
   try {
     const sheets = await AnswerSheet.find({
       assignedStaff: req.params.staffId,
@@ -359,24 +398,8 @@ export const getAssignedSheets = async (req, res) => {
       .populate("examId")
       .populate("sessionId");
 
-    // 🔥 Build response with secure URLs
-    const finalSheets = sheets.map((s) => {
-      const decryptedId = decrypt(s.filePublicId);       // real public_id
-      const publicIdNoExt = decryptedId.replace(".pdf", "");
-
-      // Generate new signed temporary URL
-      const signedUrl = cloudinary.utils.private_download_url(
-        publicIdNoExt,
-        "pdf",
-        { resource_type: "raw" }
-      );
-      console.log(signedUrl);
-      
-      return {
-        ...s.toObject(),
-        fileUrl: signedUrl,  // ← FRONTEND CAN USE DIRECTLY
-      };
-    });
+    // Staff should have shorter-lived access
+    const finalSheets = attachSignedUrlsToSheets(sheets, 10 * 60); // 10 min
 
     res.json(finalSheets);
 

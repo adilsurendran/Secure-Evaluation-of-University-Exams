@@ -17,30 +17,29 @@ function Login() {
       console.log(res);
       
 
-      // Clear old values
-      localStorage.removeItem("collegeId");
-      localStorage.removeItem("staffId");
-      localStorage.removeItem("studentId");
+localStorage.clear(); // clean old session
 
-      if (res.data.role === "admin") {
-        navigate("/admin/dashboard");
-      }
+localStorage.setItem("accessToken", res.data.accessToken);
+localStorage.setItem("role", res.data.role);
 
-      // ROLE HANDLING
-      if (res.data.role === "college") {
-        localStorage.setItem("collegeId", res.data.profileId);
-        navigate("/college/dashboard");
-      }
+if (res.data.role === "admin") {
+  navigate("/admin/dashboard");
+}
 
-      if (res.data.role === "staff") {
-        localStorage.setItem("staffId", res.data.profileId);
-        navigate("/staff/home");
-      }
+if (res.data.role === "college") {
+  localStorage.setItem("collegeId", res.data.profileId);
+  navigate("/college/dashboard");
+}
 
-      if (res.data.role === "student") {
-        localStorage.setItem("studentId", res.data.profileId);
-        navigate("/student/home");
-      }
+if (res.data.role === "staff") {
+  localStorage.setItem("staffId", res.data.profileId);
+  navigate("/staff/home");
+}
+
+if (res.data.role === "student") {
+  localStorage.setItem("studentId", res.data.profileId);
+  navigate("/student/home");
+}
 
       alert("Login successful!");
 

@@ -6,8 +6,14 @@ import {
   updateSubject,
   deleteSubject,
 } from "../Controllers/subjectController.js";
+import authMiddleware from "../middleware/authMiddleware.js";
+import roleMiddleware from "../middleware/roleMiddleware.js";
 
 const subjectRouter = express.Router();
+
+subjectRouter.use(authMiddleware);
+subjectRouter.use(roleMiddleware("admin"));
+
 
 // Routes
 subjectRouter.post("/add", addSubject);

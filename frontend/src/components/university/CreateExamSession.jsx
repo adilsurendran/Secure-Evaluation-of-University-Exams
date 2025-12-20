@@ -64,12 +64,43 @@ function CreateExamSession() {
   <option value="8">Semester 8</option>
 </select>
 
+{/* <label>Start Date</label> */}
+          {/* <input type="date"
+            onChange={(e) => setForm({ ...form, startDate: e.target.value })} /> */}
+            {/* <input
+  type="date"
+  className="form-control"
+  min={new Date().toISOString().split("T")[0]}
+  onChange={(e) =>
+    setForm({ ...form, startDate: e.target.value })
+  }
+/>
+
+<label>End Date</label>
 
           <input type="date"
-            onChange={(e) => setForm({ ...form, startDate: e.target.value })} />
+            onChange={(e) => setForm({ ...form, endDate: e.target.value })} /> */}
+            <label>Start Date</label>
+<input
+  type="date"
+  className="form-control mb-3"
+  min={new Date().toISOString().split("T")[0]}
+  onChange={(e) =>
+    setForm({ ...form, startDate: e.target.value })
+  }
+/>
 
-          <input type="date"
-            onChange={(e) => setForm({ ...form, endDate: e.target.value })} />
+<label>End Date</label>
+<input
+  type="date"
+  className="form-control"
+  min={form.startDate || new Date().toISOString().split("T")[0]}
+  onChange={(e) =>
+    setForm({ ...form, endDate: e.target.value })
+  }
+  disabled={!form.startDate}
+/>
+
 
 
           {/* SUBJECT SEARCH + MULTI SELECT */}

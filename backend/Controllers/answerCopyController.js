@@ -9,6 +9,7 @@ import College from "../Models/College.js";
 
 import cloudinary from "../config/cloudinary.js";
 import { decrypt } from "../config/encryption.js";
+import { generateSignedPdfUrl } from "../utils/signedUrlUtils.js";
 
 /* ==========================================================
    STUDENT: Get all answer sheets for which copy can be requested
@@ -257,6 +258,46 @@ export const studentGetMyCopyRequests = async (req, res) => {
 //   }
 // };
 
+// export const studentGetCopyPdf = async (req, res) => {
+//   try {
+//     const { requestId } = req.params;
+
+//     const reqDoc = await AnswerCopyRequest.findById(requestId)
+//       .populate("answerSheetId");
+
+//     if (!reqDoc) {
+//       return res.status(404).json({ msg: "Request not found" });
+//     }
+
+//     if (reqDoc.status !== "approved") {
+//       return res.status(400).json({ msg: "Request is not approved yet" });
+//     }
+
+//     const sheet = reqDoc.answerSheetId;
+
+//     const publicId = decrypt(sheet.filePublicId); // MUST include .pdf
+//     console.log("DECRYPTED =", publicId);
+
+//     const signedUrl = cloudinary.utils.private_download_url(
+//       publicId,
+//       "pdf",
+//       {
+//         resource_type: "raw",
+//         type: "authenticated",
+//         expires_at: Math.floor(Date.now() / 1000) + 60 * 5
+//       }
+//     );
+
+//     console.log("SIGNED URL =", signedUrl);
+
+//     return res.json({ url: signedUrl });
+
+//   } catch (err) {
+//     console.log("studentGetCopyPdf ERROR:", err);
+//     return res.status(500).json({ msg: "Server error", error: err.message });
+//   }
+// };
+
 export const studentGetCopyPdf = async (req, res) => {
   try {
     const { requestId } = req.params;
@@ -274,26 +315,20 @@ export const studentGetCopyPdf = async (req, res) => {
 
     const sheet = reqDoc.answerSheetId;
 
-    const publicId = decrypt(sheet.filePublicId); // MUST include .pdf
-    console.log("DECRYPTED =", publicId);
-
-    const signedUrl = cloudinary.utils.private_download_url(
-      publicId,
-      "pdf",
-      {
-        resource_type: "raw",
-        type: "authenticated",
-        expires_at: Math.floor(Date.now() / 1000) + 60 * 5
-      }
+    // ✅ SIGNED URL GENERATION MOVED TO UTILITY
+    const signedUrl = generateSignedPdfUrl(
+      sheet.filePublicId,
+      5 * 60 // 5 minutes
     );
-
-    console.log("SIGNED URL =", signedUrl);
 
     return res.json({ url: signedUrl });
 
   } catch (err) {
     console.log("studentGetCopyPdf ERROR:", err);
-    return res.status(500).json({ msg: "Server error", error: err.message });
+    return res.status(500).json({
+      msg: "Server error",
+      error: err.message
+    });
   }
 };
 

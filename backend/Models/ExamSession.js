@@ -15,13 +15,6 @@ const examSessionSchema = new mongoose.Schema(
         ref: "Subject",
       },
     ],
-
-    // Courses included (CS, BCA, BCOM etc.)
-    courses: [
-      {
-        type: String,
-      },
-    ],
   },
   { timestamps: true }
 );

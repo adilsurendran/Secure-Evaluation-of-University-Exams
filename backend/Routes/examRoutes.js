@@ -20,8 +20,13 @@ import {
   getExamsBySession,
   deleteExam,
 } from "../Controllers/examController.js";
+import authMiddleware from "../middleware/authMiddleware.js";
+import roleMiddleware from "../middleware/roleMiddleware.js";
 
 const examrouter = express.Router();
+
+examrouter.use(authMiddleware);
+examrouter.use(roleMiddleware("admin"));
 
 // CREATE EXAM
 examrouter.post("/create", createExam);

@@ -543,6 +543,7 @@
 
 import React, { useEffect, useState } from "react";
 import api from "../../../api";
+import { useNavigate } from "react-router-dom";
 
 function ScheduleExam() {
   const [form, setForm] = useState({
@@ -559,7 +560,7 @@ function ScheduleExam() {
 
   const [collegeSearch, setCollegeSearch] = useState("");
   const [showCollegeSuggestions, setShowCollegeSuggestions] = useState(false);
-
+  const navigate = useNavigate()
   // ============================================
   // LOAD SESSIONS + COLLEGES
   // ============================================
@@ -642,7 +643,7 @@ function ScheduleExam() {
       setCollegeSearch("");
       setShowCollegeSuggestions(false);
       setErrors({});
-
+      navigate("/admin/exams/manage")
     } catch (err) {
       console.log(err);
       alert("Error scheduling exam");

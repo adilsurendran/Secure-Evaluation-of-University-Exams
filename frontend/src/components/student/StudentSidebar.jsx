@@ -1,14 +1,32 @@
 // src/components/student/StudentSidebar.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../../../api";
 
 function StudentSidebar() {
   const navigate = useNavigate();
 
-  const logout = () => {
-    localStorage.removeItem("studentId");
-    navigate("/");
-  };
+  // const logout = async() => {
+  //   localStorage.removeItem("studentId");
+  //   const logouttt = await api.post("/auth/logout");
+  //   console.log(logouttt);
+    
+  //   navigate("/");
+  // };
+
+  const logout = async () => {
+  try {
+    await api.post("/auth/logout");
+  } catch (e) {
+    console.log(e);
+  }
+
+  // 🔥 CLEAR EVERYTHING
+  localStorage.clear();
+
+  navigate("/");
+};
+
 
   return (
     <div className="sidebar">
