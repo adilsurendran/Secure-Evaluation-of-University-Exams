@@ -369,12 +369,43 @@ export const adminListAnswerCopyRequests = async (req, res) => {
    ADMIN / UNIVERSITY: Approve a request
    URL: PUT /university/answer-copy/:requestId/approve
 ========================================================== */
+// export const adminApproveAnswerCopyRequest = async (req, res) => {
+//   try {
+//     const { requestId } = req.params;
+
+//     const reqDoc = await AnswerCopyRequest.findById(requestId);
+//     if (!reqDoc) return res.status(404).json({ msg: "Request not found" });
+
+//     if (reqDoc.status === "approved") {
+//       return res.status(400).json({ msg: "Already approved" });
+//     }
+
+//     reqDoc.status = "approved";
+//     reqDoc.adminNote = reqDoc.adminNote || "";
+//     await reqDoc.save();
+
+//     return res.json({ msg: "Request approved", request: reqDoc });
+//   } catch (err) {
+//     console.log("adminApproveAnswerCopyRequest ERROR:", err);
+//     return res.status(500).json({ msg: "Server error", error: err.message });
+//   }
+// };
+
 export const adminApproveAnswerCopyRequest = async (req, res) => {
   try {
     const { requestId } = req.params;
 
     const reqDoc = await AnswerCopyRequest.findById(requestId);
-    if (!reqDoc) return res.status(404).json({ msg: "Request not found" });
+    if (!reqDoc) {
+      return res.status(404).json({ msg: "Request not found" });
+    }
+
+    // 🚫 Block if payment not completed
+    if (reqDoc.paymentStatus !== "completed") {
+      return res.status(400).json({
+        msg: "Payment not completed. Approval not allowed."
+      });
+    }
 
     if (reqDoc.status === "approved") {
       return res.status(400).json({ msg: "Already approved" });
@@ -384,12 +415,20 @@ export const adminApproveAnswerCopyRequest = async (req, res) => {
     reqDoc.adminNote = reqDoc.adminNote || "";
     await reqDoc.save();
 
-    return res.json({ msg: "Request approved", request: reqDoc });
+    return res.json({
+      msg: "Request approved",
+      request: reqDoc
+    });
+
   } catch (err) {
     console.log("adminApproveAnswerCopyRequest ERROR:", err);
-    return res.status(500).json({ msg: "Server error", error: err.message });
+    return res.status(500).json({
+      msg: "Server error",
+      error: err.message
+    });
   }
 };
+
 
 /* ==========================================================
    ADMIN / UNIVERSITY: Reject a request

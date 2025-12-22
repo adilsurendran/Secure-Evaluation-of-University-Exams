@@ -637,8 +637,8 @@ select:focus {
   background: #eee;
 }
 
-.btn-blue { background: #005eff; color: #fff; padding: 6px 12px; border-radius: 4px; }
-.btn-green { background: #0f9d58; color: #fff; padding: 6px 12px; border-radius: 4px; }
+.btn-blue { background: #005eff; color: #fff; padding: 6px 12px; border-radius: 4px; margin-left: 5px;}
+.btn-green { background: #0f9d58; color: #fff; padding: 6px 12px; border-radius: 4px; margin-left: 5px;}
 .text-orange { color: orange; font-weight: bold; }
 .text-green { color: #0f9d58; font-weight: bold; }
 
@@ -683,4 +683,92 @@ select:focus {
 .pending-table th {
   background: #f5f5f5;
   text-align: left;
+}
+
+/* ================================
+   COMMON BUTTON STYLES
+================================ */
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* PRIMARY (blue) */
+.btn-primary {
+  background-color: #2563eb; /* blue-600 */
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #1e40af; /* blue-800 */
+}
+
+/* SUCCESS (green) */
+.btn-success {
+  background-color: #16a34a; /* green-600 */
+  color: #fff;
+}
+
+.btn-success:hover {
+  background-color: #15803d; /* green-700 */
+}
+
+/* WARNING (orange) */
+.btn-warning {
+  background-color: #f59e0b; /* amber-500 */
+  color: #fff;
+}
+
+.btn-warning:hover {
+  background-color: #d97706;
+}
+
+/* DANGER (red) */
+.btn-danger {
+  background-color: #dc2626; /* red-600 */
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background-color: #b91c1c;
+}
+
+/* OUTLINE */
+.btn-outline {
+  background: transparent;
+  border: 1px solid #d1d5db;
+  color: #374151;
+}
+
+.btn-outline:hover {
+  background: #f3f4f6;
+}
+
+/* DISABLED */
+.btn:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* SMALL (table buttons) */
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 13px;
+}
+
+/* FULL WIDTH */
+.btn-block {
+  width: 100%;
 }

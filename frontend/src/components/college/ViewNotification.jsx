@@ -11,7 +11,7 @@ function ViewNotification() {
       const GetNotification = async()=>{
     try{
         const res = await api.get("/university/getnotification")
-        // console.log(res);
+        console.log(res);
         setNotification(res.data.notifications)
         
     }
@@ -46,8 +46,9 @@ function ViewNotification() {
 {formatDateTime(n.createdAt)}
         </div>
         <Badge bg="primary" pill>
-          {n.semester}
-        </Badge>
+  {n.semester.join(", ")}
+</Badge>
+
       </ListGroup.Item>
       )}
     </ListGroup>

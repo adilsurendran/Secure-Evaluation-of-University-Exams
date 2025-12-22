@@ -91,6 +91,7 @@ function AdminHome() {
           <li onClick={() => navigate("/admin/revaluation")}>Revaluation Requests</li>
           <li onClick={() => navigate("/admin/notification")}>Notification</li>
           <li onClick={() => navigate("/admin/complaints")}>Complaints</li>
+          <li onClick={() => navigate("/admin/history")}>History</li>
 
           <li
             onClick={handleLogout}

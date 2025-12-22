@@ -12,14 +12,14 @@ import roleMiddleware from "../middleware/roleMiddleware.js";
 const subjectRouter = express.Router();
 
 subjectRouter.use(authMiddleware);
-subjectRouter.use(roleMiddleware("admin"));
+// subjectRouter.use(roleMiddleware("admin"));
 
 
 // Routes
-subjectRouter.post("/add", addSubject);
-subjectRouter.get("/all", getAllSubjects);
-subjectRouter.get("/:id", getSubjectById);
-subjectRouter.put("/update/:id", updateSubject);
-subjectRouter.delete("/delete/:id", deleteSubject);
+subjectRouter.post("/add",roleMiddleware("admin"), addSubject);
+subjectRouter.get("/all",roleMiddleware("admin", "college"), getAllSubjects);
+subjectRouter.get("/:id",roleMiddleware("admin", "college"), getSubjectById);
+subjectRouter.put("/update/:id",roleMiddleware("admin"), updateSubject);
+subjectRouter.delete("/delete/:id",roleMiddleware("admin"), deleteSubject);
 
 export default subjectRouter;

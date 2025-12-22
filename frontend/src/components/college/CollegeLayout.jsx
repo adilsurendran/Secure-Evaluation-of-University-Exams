@@ -2,13 +2,30 @@ import React from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import "./college.css";
 import { Button } from "react-bootstrap";
+import api from "../../../api";
 
 function CollegeLayout() {
   const navigate = useNavigate()
-  function logout(){
-localStorage.removeItem("collegeId")
-navigate("/")
-  }
+const logout = async () => {
+    try {
+      // 1️⃣ Invalidate refresh token (server-side)
+      await api.post("/auth/logout");
+    } catch (err) {
+      // Even if backend fails, continue logout
+      console.error("Logout failed:", err);
+    } finally {
+      // 2️⃣ Clear frontend auth data
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("collegeId");
+      localStorage.removeItem("role");
+
+      // Optional: wipe everything
+      // localStorage.clear();
+
+      // 3️⃣ Redirect to login
+      navigate("/");
+    }
+  };
   return (
     <div className="college-container">
 

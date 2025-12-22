@@ -19,14 +19,14 @@ const authMiddleware = (req, res, next) => {
 
     // 2️⃣ Extract token
     const token = authHeader.split(" ")[1];
-    console.log("frontend secrettttttttttttttttttttttttttttttttttttttt",token);
-console.log("backend .env secrettttttttttttttttttttttttttttttttttttttt",ACCESS_SECRET);
+//     console.log("frontend secrettttttttttttttttttttttttttttttttttttttt",token);
+// console.log("backend .env secrettttttttttttttttttttttttttttttttttttttt",ACCESS_SECRET);
 
 
     // 3️⃣ Verify token
     const decoded = jwt.verify(token, ACCESS_SECRET);
 
-    console.log("decodedddddddddddddddddddddddddddddddddddddddddddd",decoded);
+    // console.log("decodedddddddddddddddddddddddddddddddddddddddddddd",decoded);
     
 
     // 4️⃣ Attach decoded payload to request

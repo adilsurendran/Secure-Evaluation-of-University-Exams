@@ -49,9 +49,9 @@ function ViewNotifications() {
           <div className="fw-bold">{n.message}</div>
 {formatDateTime(n.createdAt)}
         </div>
-        <Badge bg="primary" pill>
+        {/* <Badge bg="primary" pill>
           {n.semester}
-        </Badge>
+        </Badge> */}
       </ListGroup.Item>
       )}
     </ListGroup>

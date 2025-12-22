@@ -229,6 +229,90 @@ export const adminRejectRequest = async (req, res) => {
 // ADMIN: AUTO ASSIGN REVALUATIONS BY SESSION
 // POST /revaluation/admin/auto-assign/:sessionId
 // ================================
+// export const autoAssignRevaluations = async (req, res) => {
+//   try {
+//     const { sessionId } = req.params;
+
+//     // 1️⃣ Load all pending requests of this session
+//     const requests = await RevaluationRequest.find({
+//       sessionId,
+//       status: "pending"
+//     }).populate("answerSheetId");
+
+//     if (requests.length === 0) {
+//       return res.json({ msg: "No pending requests found" });
+//     }
+
+//     // Load all staff once
+//     const staffList = await Staff.find()
+//       .populate("subjects")
+//       .populate("collegeId");
+
+//     let assigned = 0;
+//     let rejected = 0;
+
+//     for (const reqDoc of requests) {
+
+//       // ❌ Reject unpaid
+//       if (reqDoc.paymentStatus !== "paid") {
+//         reqDoc.status = "rejected";
+//         reqDoc.adminNote = "Payment not completed";
+//         await reqDoc.save();
+//         rejected++;
+//         continue;
+//       }
+
+//       const sheet = reqDoc.answerSheetId;
+//       const subjectId = sheet.subjectId.toString();
+//       const studentCollegeId = sheet.collegeId.toString();
+//       const previousStaffId = sheet.assignedStaff?.toString();
+
+//       // 2️⃣ Find eligible staff
+//       const eligibleStaff = staffList.filter(st => {
+//         const teaches = st.subjects.some(
+//           sub => sub._id.toString() === subjectId
+//         );
+
+//         const differentCollege =
+//           st.collegeId._id.toString() !== studentCollegeId;
+
+//         const notPrevious =
+//           previousStaffId ? st._id.toString() !== previousStaffId : true;
+
+//         return teaches && differentCollege && notPrevious;
+//       });
+
+//       if (eligibleStaff.length === 0) {
+//         reqDoc.status = "rejected";
+//         reqDoc.adminNote = "No eligible staff available";
+//         await reqDoc.save();
+//         rejected++;
+//         continue;
+//       }
+
+//       // 3️⃣ Assign randomly (fair distribution)
+//       const assignedStaff =
+//         eligibleStaff[Math.floor(Math.random() * eligibleStaff.length)];
+
+//       reqDoc.assignedStaff = assignedStaff._id;
+//       reqDoc.status = "assigned";
+//       await reqDoc.save();
+
+//       assigned++;
+//     }
+
+//     return res.json({
+//       msg: "Auto assignment completed",
+//       assigned,
+//       rejected
+//     });
+
+//   } catch (err) {
+//     console.error("AUTO ASSIGN ERROR:", err);
+//     res.status(500).json({ msg: err.message });
+//   }
+// };
+
 export const autoAssignRevaluations = async (req, res) => {
   try {
     const { sessionId } = req.params;
@@ -243,7 +327,7 @@ export const autoAssignRevaluations = async (req, res) => {
       return res.json({ msg: "No pending requests found" });
     }
 
-    // Load all staff once
+    // 2️⃣ Load all staff once
     const staffList = await Staff.find()
       .populate("subjects")
       .populate("collegeId");
@@ -267,7 +351,7 @@ export const autoAssignRevaluations = async (req, res) => {
       const studentCollegeId = sheet.collegeId.toString();
       const previousStaffId = sheet.assignedStaff?.toString();
 
-      // 2️⃣ Find eligible staff
+      // 3️⃣ Find eligible staff (INCLUDING availability)
       const eligibleStaff = staffList.filter(st => {
         const teaches = st.subjects.some(
           sub => sub._id.toString() === subjectId
@@ -279,7 +363,9 @@ export const autoAssignRevaluations = async (req, res) => {
         const notPrevious =
           previousStaffId ? st._id.toString() !== previousStaffId : true;
 
-        return teaches && differentCollege && notPrevious;
+        const isAvailable = st.available === true; // ✅ NEW CONDITION
+
+        return teaches && differentCollege && notPrevious && isAvailable;
       });
 
       if (eligibleStaff.length === 0) {
@@ -290,7 +376,7 @@ export const autoAssignRevaluations = async (req, res) => {
         continue;
       }
 
-      // 3️⃣ Assign randomly (fair distribution)
+      // 4️⃣ Assign randomly (fair distribution)
       const assignedStaff =
         eligibleStaff[Math.floor(Math.random() * eligibleStaff.length)];
 
@@ -312,6 +398,7 @@ export const autoAssignRevaluations = async (req, res) => {
     res.status(500).json({ msg: err.message });
   }
 };
+
 
 
 

@@ -26,18 +26,18 @@ import roleMiddleware from "../middleware/roleMiddleware.js";
 const examrouter = express.Router();
 
 examrouter.use(authMiddleware);
-examrouter.use(roleMiddleware("admin"));
+// examrouter.use(roleMiddleware("admin"));
 
 // CREATE EXAM
-examrouter.post("/create", createExam);
+examrouter.post("/create",roleMiddleware("admin"), createExam);
 
 // GET ALL EXAMS
-examrouter.get("/all", getAllExams);
+examrouter.get("/all",roleMiddleware("admin", "college"), getAllExams);
 
 // GET EXAMS BY SESSION
-examrouter.get("/session/:sessionId", getExamsBySession);
+examrouter.get("/session/:sessionId",roleMiddleware("admin", "college","student"), getExamsBySession);
 
 // DELETE EXAM
-examrouter.delete("/delete/:id", deleteExam);
+examrouter.delete("/delete/:id",roleMiddleware("admin"), deleteExam);
 
 export default examrouter;

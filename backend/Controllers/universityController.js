@@ -113,6 +113,75 @@ export const getSessionAllocationStats = async (req, res) => {
 //   }
 // };
 
+// export const allocateAnswerSheets = async (req, res) => {
+//   try {
+//     const sessionId = req.params.sessionId;
+
+//     const sheets = await AnswerSheet.find({
+//       sessionId,
+//       assignedStaff: null
+//     })
+//       .populate("subjectId")
+//       .populate("studentId");
+
+//     if (sheets.length === 0) {
+//       return res.json({ msg: "No unassigned sheets found" });
+//     }
+
+//     const allStaff = await Staff.find().populate("subjects");
+
+//     const staffLoad = {};
+//     let assignedCount = 0;
+
+//     for (const sheet of sheets) {
+//       const subjectId = sheet.subjectId._id.toString();
+//       const studentCollege = sheet.studentId.collegeId.toString();
+
+//       const eligibleStaff = allStaff.filter(st => {
+//         const teachesSubject = st.subjects.some(
+//           (sub) => sub._id.toString() === subjectId
+//         );
+
+//         const notFromSameCollege =
+//           st.collegeId.toString() !== studentCollege;
+
+//         const isAvailable = st.available === true; // <-- NEW CONDITION
+
+//         return teachesSubject && notFromSameCollege && isAvailable;
+//       });
+
+//       if (eligibleStaff.length === 0) {
+//         console.log("NO staff found for subject:", sheet.subjectId.subjectName);
+//         continue;
+//       }
+
+//       eligibleStaff.sort((a, b) => {
+//         const loadA = staffLoad[a._id] || 0;
+//         const loadB = staffLoad[b._id] || 0;
+//         return loadA - loadB;
+//       });
+
+//       const assignedStaff = eligibleStaff[0];
+
+//       sheet.assignedStaff = assignedStaff._id;
+//       sheet.status = "assigned";
+//       await sheet.save();
+
+//       staffLoad[assignedStaff._id] =
+//         (staffLoad[assignedStaff._id] || 0) + 1;
+
+//       assignedCount++;
+//     }
+
+//     return res.json({
+//       msg: `Allocation completed`,
+//       allocated: assignedCount,
+//     });
+//   } catch (err) {
+//     return res.status(500).json({ msg: err.message });
+//   }
+// };
+
 export const allocateAnswerSheets = async (req, res) => {
   try {
     const sessionId = req.params.sessionId;
@@ -133,25 +202,31 @@ export const allocateAnswerSheets = async (req, res) => {
     const staffLoad = {};
     let assignedCount = 0;
 
+    const failedAllocations = []; // 👈 track failures
+
     for (const sheet of sheets) {
       const subjectId = sheet.subjectId._id.toString();
       const studentCollege = sheet.studentId.collegeId.toString();
 
       const eligibleStaff = allStaff.filter(st => {
         const teachesSubject = st.subjects.some(
-          (sub) => sub._id.toString() === subjectId
+          sub => sub._id.toString() === subjectId
         );
 
         const notFromSameCollege =
           st.collegeId.toString() !== studentCollege;
 
-        const isAvailable = st.available === true; // <-- NEW CONDITION
+        const isAvailable = st.available === true;
 
         return teachesSubject && notFromSameCollege && isAvailable;
       });
 
       if (eligibleStaff.length === 0) {
-        console.log("NO staff found for subject:", sheet.subjectId.subjectName);
+        failedAllocations.push({
+          sheetId: sheet._id,
+          subject: sheet.subjectId.subjectName,
+          reason: "No eligible staff available"
+        });
         continue;
       }
 
@@ -174,13 +249,18 @@ export const allocateAnswerSheets = async (req, res) => {
     }
 
     return res.json({
-      msg: `Allocation completed`,
+      msg: "Allocation completed",
+      totalSheets: sheets.length,
       allocated: assignedCount,
+      failed: failedAllocations.length,
+      failedAllocations // send details to UI
     });
+
   } catch (err) {
     return res.status(500).json({ msg: err.message });
   }
 };
+
 
 
 
@@ -192,6 +272,7 @@ import Student from "../Models/Student.js";
 import Complaint from "../Models/Complaints.js";
 import College from "../Models/College.js";
 import Exam from "../Models/Exam.js";
+import RevaluationRequest from "../Models/RevaluationRequest.js";
 
 
 // ======================================================================
@@ -348,21 +429,45 @@ export const getPendingSheets = async (req, res) => {
 };
 
 
-export const postNotifiaction = async(req,res)=>{
-  try{
-const {message,semester}= req.body
-// console.log(message,Semester);
-const newNotification = await NOTIFICATION.create({
-message,semester
-})
-return res.status(200).json({message:"Notification Sent Successfully",newNotification})
-  }
-  catch(e){
-    console.log(e);
-        return res.status(500).json({ msg: e.message });
+// export const postNotifiaction = async(req,res)=>{
+//   try{
+// const {message,semester}= req.body
+// // console.log(message,Semester);
+// const newNotification = await NOTIFICATION.create({
+// message,semester
+// })
+// return res.status(200).json({message:"Notification Sent Successfully",newNotification})
+//   }
+//   catch(e){
+//     console.log(e);
+//         return res.status(500).json({ msg: e.message });
 
+//   }
+// }
+
+export const postNotifiaction = async (req, res) => {
+  try {
+    const { message, semester } = req.body;
+
+    if (!message || !semester || semester.length === 0) {
+      return res.status(400).json({ message: "Message & semester required" });
+    }
+
+    const newNotification = await NOTIFICATION.create({
+      message,
+      semester, // ✅ array saved directly
+    });
+
+    return res.status(200).json({
+      message: "Notification Sent Successfully",
+      newNotification,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ msg: e.message });
   }
-}
+};
+
 
 export const allnotifications = async(req,res)=>{
   try{
@@ -450,69 +555,112 @@ export const deleteNotification = async(req,res)=>{
 
 
 
+// export const studentNotifications = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+
+//     // -----------------------------------------
+//     // 1. Fetch student semester safely
+//     // -----------------------------------------
+//     const student = await Student.findById(id).select("semester").lean();
+// console.log(student,'student');
+
+//     if (!student || student.semester === undefined || student.semester === null) {
+//       return res.status(404).json({
+//         message: "Student not found or semester missing"
+//       });
+//     }
+
+//     // Normalize semester (string, trimmed)
+//     const semester = String(student.semester).trim();
+
+//     // -----------------------------------------
+//     // 2. DEBUG LOGS (remove after confirmation)
+//     // -----------------------------------------
+//     // console.log("Student semester value:", student.semester);
+//     // console.log("Normalized semester:", semester);
+//     // console.log("Notification collection:", NOTIFICATION.collection.name);
+
+//     // -----------------------------------------
+//     // 3. Fetch ALL notifications (sanity check)
+//     // -----------------------------------------
+//     // const allNotifications = await NOTIFICATION.find();
+//     // console.log("ALL notifications count:", allNotifications.length);
+
+//     // -----------------------------------------
+//     // 4. Semester-safe query (handles string/number/space)
+//     // -----------------------------------------
+//     const notifications = await NOTIFICATION.find({
+//       $expr: {
+//         $eq: [
+//           { $trim: { input: { $toString: "$semester" } } },
+//           semester
+//         ]
+//       }
+//     })
+//       .sort({ createdAt: -1 })
+//       .lean();
+
+//     // -----------------------------------------
+//     // 5. Final response
+//     // -----------------------------------------
+//     return res.status(200).json({
+//       semester,
+//       count: notifications.length,
+//       notifications
+//     });
+
+//   } catch (error) {
+//     console.error("STUDENT NOTIFICATION ERROR:", error);
+//     return res.status(500).json({
+//       message: "Server error",
+//       error: error.message
+//     });
+//   }
+// };
+
 export const studentNotifications = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // -----------------------------------------
-    // 1. Fetch student semester safely
-    // -----------------------------------------
-    const student = await Student.findById(id).select("semester").lean();
-console.log(student,'student');
+    // 1️⃣ Get student semester
+    const student = await Student.findById(id)
+      .select("semester")
+      .lean();
 
-    if (!student || student.semester === undefined || student.semester === null) {
+    console.log(student, "student");
+
+    if (!student || student.semester == null) {
       return res.status(404).json({
-        message: "Student not found or semester missing"
+        message: "Student not found or semester missing",
       });
     }
 
-    // Normalize semester (string, trimmed)
-    const semester = String(student.semester).trim();
+    // Ensure NUMBER
+    const semester = Number(student.semester);
 
-    // -----------------------------------------
-    // 2. DEBUG LOGS (remove after confirmation)
-    // -----------------------------------------
-    // console.log("Student semester value:", student.semester);
-    // console.log("Normalized semester:", semester);
-    // console.log("Notification collection:", NOTIFICATION.collection.name);
-
-    // -----------------------------------------
-    // 3. Fetch ALL notifications (sanity check)
-    // -----------------------------------------
-    // const allNotifications = await NOTIFICATION.find();
-    // console.log("ALL notifications count:", allNotifications.length);
-
-    // -----------------------------------------
-    // 4. Semester-safe query (handles string/number/space)
-    // -----------------------------------------
+    // 2️⃣ Fetch notifications where student's semester is inside array
     const notifications = await NOTIFICATION.find({
-      $expr: {
-        $eq: [
-          { $trim: { input: { $toString: "$semester" } } },
-          semester
-        ]
-      }
+      semester: { $in: [semester] }, // ✅ CORRECT
     })
       .sort({ createdAt: -1 })
       .lean();
 
-    // -----------------------------------------
-    // 5. Final response
-    // -----------------------------------------
+    // 3️⃣ Response
     return res.status(200).json({
       semester,
       count: notifications.length,
-      notifications
+      notifications,
     });
-
   } catch (error) {
     console.error("STUDENT NOTIFICATION ERROR:", error);
     return res.status(500).json({
       message: "Server error",
-      error: error.message
+      error: error.message,
     });
   }
 };
+
 
 export const getComplaints = async(req,res)=>{
   const{status} = req.query
@@ -573,3 +721,78 @@ const exams = await Exam.countDocuments()
     });
   }
 }
+
+// university history related
+
+
+export const valuationHistory = async (req, res) => {
+  try {
+    const data = await AnswerSheet.find({ status: "evaluated" })
+      .populate("studentId", "name registerNo")
+      .populate("subjectId", "subjectName subjectCode")
+      .populate("sessionId", "name academicYear semester")
+      .populate("collegeId", "name")
+      .populate({
+        path: "assignedStaff",
+        select: "name collegeId",
+        populate: {
+          path: "collegeId",
+          select: "name"
+        }
+      })
+      .sort({ updatedAt: -1 });
+
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};
+
+
+
+export const revaluationHistory = async (req, res) => {
+  try {
+    const data = await RevaluationRequest.find()
+      .populate("studentId", "name registerNo")
+      .populate({
+        path: "answerSheetId",
+        populate: [
+          { path: "subjectId", select: "subjectName subjectCode" },
+          { path: "sessionId", select: "name academicYear semester" },
+          { path: "collegeId", select: "name" }
+        ]
+      })
+      .populate({
+        path: "assignedStaff",
+        select: "name collegeId",
+        populate: {
+          path: "collegeId",
+          select: "name"
+        }
+      })
+      .sort({ updatedAt: -1 });
+
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};
+
+
+import AnswerCopyRequest from "../Models/AnswerCopyRequest.js";
+
+export const answerCopyHistory = async (req, res) => {
+  try {
+    const data = await AnswerCopyRequest.find()
+      .populate("studentId", "name registerNo")
+      .populate("subjectId", "subjectName subjectCode")
+      .populate("sessionId", "name academicYear semester")
+      .populate("collegeId", "name")
+      .populate("examId", "examDate")
+      .sort({ createdAt: -1 });
+
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};

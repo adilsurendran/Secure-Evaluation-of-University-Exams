@@ -202,6 +202,7 @@ import StudentComplaints from './components/student/StudentComplaints';
 /* ================= ROUTE GUARDS ================= */
 import ProtectedRoute from './components/protect/ProtectedRoute';
 import RoleProtectedRoute from './components/protect/RoleProtectedRoute';
+import AdminHistory from './components/university/history/AdminHistory';
 
 function App() {
   return (
@@ -224,6 +225,7 @@ function App() {
         }
       >
         <Route path="dashboard" element={<Dashboard />} />
+        <Route path="history" element={<AdminHistory />} />
         <Route path="manage-colleges" element={<ManageColleges />} />
         <Route path="notification" element={<Notification />} />
         <Route path="complaints" element={<UniversityComplaints />} />

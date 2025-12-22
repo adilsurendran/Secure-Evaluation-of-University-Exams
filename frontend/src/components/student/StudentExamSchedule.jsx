@@ -10,6 +10,8 @@ function StudentExamSchedule() {
   useEffect(() => {
     const fetchSchedule = async () => {
       const res = await api.get(`/student/exam-schedule/${studentId}`);
+      console.log(res);
+      
       setExams(res.data);
     };
     fetchSchedule();

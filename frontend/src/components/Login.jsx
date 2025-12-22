@@ -76,12 +76,12 @@ if (res.data.role === "student") {
             <button type="submit">Login</button>
           </form>
 
-          <p className="signup-text">
+          {/* <p className="signup-text">
             Don't have an account?{" "}
             <span className="signup-link" onClick={() => setOpen(true)}>
               Signup
             </span>
-          </p>
+          </p> */}
         </div>
       </div>
 

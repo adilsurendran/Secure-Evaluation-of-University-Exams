@@ -393,3 +393,38 @@ export const getComplaint=async(req,res)=>{
     });
   }  
 }
+
+
+import AnswerCopyRequest from "../Models/AnswerCopyRequest.js";
+
+export const studentMarkCopyPaid = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+
+    const request = await AnswerCopyRequest.findById(requestId);
+
+    if (!request) {
+      return res.status(404).json({ msg: "Request not found" });
+    }
+
+    if (request.paymentStatus === "completed") {
+      return res.status(400).json({
+        msg: "Payment already completed"
+      });
+    }
+
+    // ✅ No approval check (as requested)
+    request.paymentStatus = "completed";
+    await request.save();
+
+    return res.json({
+      msg: "Payment completed successfully"
+    });
+
+  } catch (err) {
+    return res.status(500).json({
+      msg: "Server error",
+      error: err.message
+    });
+  }
+};

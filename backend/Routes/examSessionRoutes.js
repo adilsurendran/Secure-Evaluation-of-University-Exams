@@ -10,11 +10,11 @@ import roleMiddleware from "../middleware/roleMiddleware.js";
 const ESessionrouter = express.Router();
 
 ESessionrouter.use(authMiddleware);
-ESessionrouter.use(roleMiddleware("admin"));
+// ESessionrouter.use(roleMiddleware("admin"));
 
 
-ESessionrouter.post("/create", createExamSession);
-ESessionrouter.get("/all", getAllExamSessions);
-ESessionrouter.delete("/delete/:id", deleteExamSession);
+ESessionrouter.post("/create",roleMiddleware("admin"), createExamSession);
+ESessionrouter.get("/all",roleMiddleware("admin", "college","student"), getAllExamSessions);
+ESessionrouter.delete("/delete/:id",roleMiddleware("admin"), deleteExamSession);
 
 export default ESessionrouter;

@@ -14,18 +14,40 @@ function StudentSidebar() {
   //   navigate("/");
   // };
 
-  const logout = async () => {
-  try {
-    await api.post("/auth/logout");
-  } catch (e) {
-    console.log(e);
-  }
+//   const logout = async () => {
+//   try {
+//     await api.post("/auth/logout");
+//   } catch (e) {
+//     console.log(e);
+//   }
 
-  // 🔥 CLEAR EVERYTHING
-  localStorage.clear();
+//   // 🔥 CLEAR EVERYTHING
+//   localStorage.clear();
 
-  navigate("/");
-};
+//   navigate("/");
+// };
+
+ const logout = async () => {
+      try {
+        // 1️⃣ Invalidate refresh token (server-side)
+        await api.post("/auth/logout");
+      } catch (err) {
+        // Even if backend fails, continue logout
+        console.error("Logout failed:", err);
+      } finally {
+        // 2️⃣ Clear frontend auth data
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("studentId");
+        localStorage.removeItem("role");
+  
+        // Optional: wipe everything
+        // localStorage.clear();
+  
+        // 3️⃣ Redirect to login
+        navigate("/");
+      }
+    };
+
 
 
   return (

@@ -44,6 +44,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+// -------------------- ENV CONFIG --------------------
 dotenv.config();
 
 
@@ -58,8 +59,6 @@ import studentRouter from "./Routes/studentRoutes.js";
 import universityRouter from "./Routes/universityRoutes.js";
 import revaluationRouter from "./Routes/revaluationRoutes.js";
 
-// -------------------- ENV CONFIG --------------------
-console.log("ACCESS_SECRET:", process.env.ACCESS_SECRET);
 
 // -------------------- APP INIT --------------------
 const server = express();
