@@ -2,26 +2,102 @@ import React, { useState, useEffect } from "react";
 import api from "../../../api";
 import { useNavigate } from "react-router-dom";
 
-
 function RegisterCollege() {
-  const [open, setOpen] = useState(false);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     name: "",
     address: "",
     contact: "",
     email: "",
-    password:"",
+    password: "",
     subjects: [],
   });
 
-  const [errors, setErrors] = useState({});
   const [subjectsList, setSubjectsList] = useState([]);
+  const [errors, setErrors] = useState({});
   const [searchText, setSearchText] = useState("");
-const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
+  // ✅ NEW: track selected courses (UI only)
+  const [selectedCourses, setSelectedCourses] = useState([]);
 
-  // Load subjects from database
+  // // 🔹 Course list (you can extend anytime)
+  // const COURSE_LIST = [
+  //   "BA English",
+  //   "BSc Computer Science",
+  //   "BCom Finance",
+  //   "BCA",
+  //   "BSc IT",
+  //   "MSc Computer Science",
+  //   "MCA",
+  //   "MBA",
+  // ];
+    const COURSE_LIST = [
+  // UG – Arts & Science
+  "BA English",
+  "BA Malayalam",
+  "BA Economics",
+  "BA History",
+  "BA Political Science",
+  "BSc Mathematics",
+  "BSc Physics",
+  "BSc Chemistry",
+  "BSc Computer Science",
+  "BSc Statistics",
+  "BSc Psychology",
+  "BSc Biotechnology",
+  "BSc Zoology",
+  "BSc Botany",
+
+  // UG – Commerce & Management
+  "BCom Finance",
+  "BCom Cooperation",
+  "BCom Computer Applications",
+  "BBA",
+  "BBM",
+
+  // UG – Computer / Tech
+  "BCA",
+  "BSc IT",
+  "BTech Computer Science",
+  "BTech Information Technology",
+  "BTech Electronics",
+  "BTech Mechanical",
+  "BTech Civil",
+
+  // PG – Arts & Science
+  "MA English",
+  "MA Economics",
+  "MA History",
+  "MSc Mathematics",
+  "MSc Physics",
+  "MSc Chemistry",
+  "MSc Computer Science",
+  "MSc Psychology",
+
+  // PG – Commerce / Management
+  "MCom Finance",
+  "MCom Marketing",
+  "MBA",
+  "MBA Finance",
+  "MBA HR",
+  "MBA Marketing",
+
+  // PG – Tech
+  "MCA",
+  "MTech Computer Science",
+  "MTech Electronics",
+
+  // Education & Others
+  "BEd",
+  "MEd",
+  "LLB",
+  "LLM",
+  "Diploma in Computer Applications",
+  "Diploma in Electronics"
+];
+  // Load subjects
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
@@ -55,42 +131,19 @@ const [showSuggestions, setShowSuggestions] = useState(false);
     return Object.keys(err).length === 0;
   };
 
-  // Submit Handler
+  // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validate())
-      return alert("Complete all fields in required format");
+    if (!validate()) return alert("Complete all fields correctly");
 
     try {
-      const res = await api.post("/colleges/register", form);
-      alert("College Registered Successfully!");
-
-setForm({
-  name: "",
-  address: "",
-  contact: "",
-  email: "",
-  password: "",
-  subjects: [],
-});
-
-// Close dropdown if open
-setOpen(false);
-
-// Navigate to Manage Colleges
-navigate("/admin/manage-colleges");
-
-    } catch (error) {
-      console.log(error);
+      await api.post("/colleges/register", form);
+      alert("College Registered Successfully");
+      navigate("/admin/manage-colleges");
+    } catch (err) {
+      console.log(err);
     }
   };
-
-  // Handle subject selection
-  // const handleSubjectSelect = (e) => {
-  //   const selected = Array.from(e.target.selectedOptions, (opt) => opt.value);
-  //   setForm({ ...form, subjects: selected });
-  // };
 
   return (
     <div className="bgg">
@@ -98,168 +151,177 @@ navigate("/admin/manage-colleges");
         <h2>College Registration</h2>
 
         <form onSubmit={handleSubmit}>
-          
           <input
             placeholder="College Name"
             onChange={(e) => setForm({ ...form, name: e.target.value })}
           />
-          <p className="error text-danger">{errors.name}</p>
+          <p className="error">{errors.name}</p>
 
           <textarea
             placeholder="Address"
             onChange={(e) => setForm({ ...form, address: e.target.value })}
           />
-          <p className="error text-danger">{errors.address}</p>
+          <p className="error">{errors.address}</p>
 
           <input
             placeholder="Contact Number"
             onChange={(e) => setForm({ ...form, contact: e.target.value })}
           />
-          <p className="error text-danger">{errors.contact}</p>
+          <p className="error">{errors.contact}</p>
 
           <input
             placeholder="Email"
             onChange={(e) => setForm({ ...form, email: e.target.value })}
           />
-          <p className="error text-danger">{errors.email}</p>
+          <p className="error">{errors.email}</p>
 
           <input
             placeholder="Password"
+            type="password"
             onChange={(e) => setForm({ ...form, password: e.target.value })}
           />
-          <p className="error text-danger">{errors.password}</p>
+          <p className="error">{errors.password}</p>
 
-          {/* SUBJECT MULTI SELECT */}
-{/* <div className="multi-select-box">
-  <div className="selected-area" onClick={() => setOpen(!open)}>
-    {form.subjects.length === 0 && (
-      <span>Select Subjects</span>
-    )}
+          {/* ================= COURSE SELECT ================= */}
+          <select
+            onChange={(e) => {
+              const course = e.target.value;
+              if (!course || selectedCourses.includes(course)) return;
 
-    {form.subjects.map((subId) => {
-      const sub = subjectsList.find((s) => s._id === subId);
-      return (
-        <span key={subId} className="chip">
-          {sub.subjectName}
-          <span
-            className="remove-chip"
-            onClick={(e) => {
-              e.stopPropagation();
-              setForm({
-                ...form,
-                subjects: form.subjects.filter((id) => id !== subId),
-              });
+              // Track course
+              setSelectedCourses((prev) => [...prev, course]);
+
+              // Add subjects of that course
+              const courseSubjects = subjectsList
+                .filter((s) => s.course === course)
+                .map((s) => s._id);
+
+              setForm((prev) => ({
+                ...prev,
+                subjects: Array.from(
+                  new Set([...prev.subjects, ...courseSubjects])
+                ),
+              }));
             }}
           >
-            ×
-          </span>
-        </span>
-      );
-    })}
-  </div>
+            <option value="">Select Course (Optional)</option>
+            {COURSE_LIST.map((c, i) => (
+              <option key={i} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
 
-  {open && (
-    <div className="dropdown">
-      {subjectsList.map((sub) => (
-        <div
-          key={sub._id}
-          className="dropdown-item"
-          onClick={() => {
-            if (!form.subjects.includes(sub._id)) {
-              setForm({
-                ...form,
-                subjects: [...form.subjects, sub._id],
-              });
-            }
-          }}
-        >
-          {sub.subjectCode} - {sub.subjectName}
-        </div>
-      ))}
-    </div>
-  )}
-</div> */}
-{/* SUBJECT SEARCH + MULTI SELECT */}
-<div className="subject-search-box">
+          {/* Selected Courses Display */}
+          <div className="selected-area">
+            {selectedCourses.length === 0 && (
+              <span className="placeholder">No courses selected</span>
+            )}
 
-  {/* Search Input */}
-  <input
-    type="text"
-    className="subject-search-input"
-    placeholder="Search subject by name or code..."
-    value={searchText}
-    onChange={(e) => {
-      setSearchText(e.target.value.toLowerCase());
-      setShowSuggestions(true);
-    }}
-    onFocus={() => setShowSuggestions(true)}
-  />
+            {selectedCourses.map((course) => (
+              <span key={course} className="chip course-chip">
+                {course}
+                <span
+                  className="remove-chip"
+                  onClick={() => {
+  // Remove course from selected courses
+  setSelectedCourses((prev) => prev.filter((c) => c !== course));
 
-  {/* Selected Subjects */}
-  <div className="selected-area">
-    {form.subjects.length === 0 && (
-      <span className="placeholder">No subjects selected</span>
-    )}
+  // Find subject IDs belonging to this course
+  const courseSubjectIds = subjectsList
+    .filter((s) => s.course === course)
+    .map((s) => s._id);
 
-    {form.subjects.map((id) => {
-      const sub = subjectsList.find((s) => s._id === id);
-      return (
-        <span className="chip" key={id}>
-          {sub.subjectName} ({sub.subjectCode})
-          <span
-            className="remove-chip"
-            onClick={() =>
-              setForm({
-                ...form,
-                subjects: form.subjects.filter((x) => x !== id),
-              })
-            }
-          >
-            ×
-          </span>
-        </span>
-      );
-    })}
-  </div>
+  // Remove those subjects from form.subjects
+  setForm((prev) => ({
+    ...prev,
+    subjects: prev.subjects.filter(
+      (id) => !courseSubjectIds.includes(id)
+    ),
+  }));
+}}
 
-  {/* Suggestions Dropdown */}
-  {showSuggestions && searchText && (
-    <div className="dropdown">
-      {subjectsList
-        .filter(
-          (s) =>
-            s.subjectName.toLowerCase().includes(searchText) ||
-            s.subjectCode.toLowerCase().includes(searchText)
-        )
-        .slice(0, 7)
-        .map((s) => (
-          <div
-            key={s._id}
-            className="dropdown-item"
-            onClick={() => {
-              if (!form.subjects.includes(s._id)) {
-                setForm({
-                  ...form,
-                  subjects: [...form.subjects, s._id],
-                });
-              }
-              setShowSuggestions(false);
-              setSearchText("");
-            }}
-          >
-            {s.subjectName} ({s.subjectCode})
+                >
+                  ×
+                </span>
+              </span>
+            ))}
           </div>
-        ))}
-    </div>
-  )}
-</div>
 
-<p className="error text-danger">{errors.subjects}</p>
+          {/* ================= SUBJECT SEARCH ================= */}
+          <div className="subject-search-box">
+            <input
+              type="text"
+              className="subject-search-input"
+              placeholder="Search subject by name or code..."
+              value={searchText}
+              onChange={(e) => {
+                setSearchText(e.target.value.toLowerCase());
+                setShowSuggestions(true);
+              }}
+              onFocus={() => setShowSuggestions(true)}
+            />
 
+            <div className="selected-area">
+              {form.subjects.length === 0 && (
+                <span className="placeholder">No subjects selected</span>
+              )}
 
+              {form.subjects.map((id) => {
+                const sub = subjectsList.find((s) => s._id === id);
+                return (
+                  <span key={id} className="chip">
+                    {sub?.subjectName} ({sub?.subjectCode})
+                    <span
+                      className="remove-chip"
+                      onClick={() =>
+                        setForm({
+                          ...form,
+                          subjects: form.subjects.filter((x) => x !== id),
+                        })
+                      }
+                    >
+                      ×
+                    </span>
+                  </span>
+                );
+              })}
+            </div>
 
+            {showSuggestions && searchText && (
+              <div className="dropdown">
+                {subjectsList
+                  .filter(
+                    (s) =>
+                      s.subjectName.toLowerCase().includes(searchText) ||
+                      s.subjectCode.toLowerCase().includes(searchText)
+                  )
+                  .slice(0, 7)
+                  .map((s) => (
+                    <div
+                      key={s._id}
+                      className="dropdown-item"
+                      onClick={() => {
+                        if (!form.subjects.includes(s._id)) {
+                          setForm({
+                            ...form,
+                            subjects: [...form.subjects, s._id],
+                          });
+                        }
+                        setShowSuggestions(false);
+                        setSearchText("");
+                      }}
+                    >
+                      {s.subjectName} ({s.subjectCode})
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
 
-          <button>Submit</button>
+          <p className="error">{errors.subjects}</p>
+
+          <button type="submit">Submit</button>
         </form>
       </div>
     </div>

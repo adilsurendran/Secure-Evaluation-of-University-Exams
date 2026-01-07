@@ -1,12 +1,4 @@
 
-// import axios from "axios";
-
-// const api  = axios.create({
-//     baseURL:"http://localhost:8000/api"
-// })
-
-// export default api
-
 import axios from "axios";
 
 const api = axios.create({
@@ -90,7 +82,7 @@ api.interceptors.response.use(
 
         // Refresh failed → force logout
         localStorage.clear();
-        window.location.href = "/login";
+        window.location.href = "/";
         return Promise.reject(refreshError);
 
       } finally {

@@ -92,7 +92,8 @@ import {
   getEligibleStaffForRevaluation,
 
   staffAssignedRequests,
-  staffEvaluateRevaluation
+  staffEvaluateRevaluation,
+  checkRevaluationAllowed
 } from "../Controllers/revaluationController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import roleMiddleware from "../middleware/roleMiddleware.js";
@@ -131,6 +132,8 @@ router.put(
   roleMiddleware("student"),
   studentMarkPaid
 );
+
+router.get("/check/:studentId/:sessionId/:answerSheetId",checkRevaluationAllowed)
 
 /* =====================================================
    🏛️ ADMIN (UNIVERSITY) ROUTES

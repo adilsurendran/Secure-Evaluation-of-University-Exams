@@ -1,296 +1,6 @@
 // import React, { useEffect, useState } from "react";
 // import api from "../../../api";
-
-// function ScheduleExam() {
-//   const [form, setForm] = useState({
-//     sessionId: "",
-//     subjectId: "",
-//     examDate: "",
-//     examTime: "",
-//     allowedColleges: [],
-//   });
-
-//   const [sessions, setSessions] = useState([]);
-//   const [colleges, setColleges] = useState([]);
-//   const [errors, setErrors] = useState({});
-//   const [openCollegeDropdown, setOpenCollegeDropdown] = useState(false);
-// const [collegeSearch, setCollegeSearch] = useState("");
-// const [showCollegeSuggestions, setShowCollegeSuggestions] = useState(false);
-
-//   // Fetch sessions + colleges
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       try {
-//         const [sessionRes, collegeRes] = await Promise.all([
-//           api.get("/exam-sessions/all"),
-//           api.get("/colleges/all"),
-//         ]);
-
-//         setSessions(sessionRes.data);
-//         setColleges(collegeRes.data);
-//       } catch (err) {
-//         console.log(err);
-//       }
-//     };
-
-//     fetchData();
-//   }, []);
-
-//   // Get subjects from selected session
-//   const selectedSession = sessions.find(
-//     (s) => s._id === form.sessionId
-//   );
-//   const availableSubjects = selectedSession?.subjects || [];
-
-//   const validate = () => {
-//     let err = {};
-
-//     if (!form.sessionId) err.sessionId = "Select an exam session";
-//     if (!form.subjectId) err.subjectId = "Select a subject";
-//     if (!form.examDate) err.examDate = "Select exam date";
-//     if (!form.examTime.trim()) err.examTime = "Enter exam time";
-//     if (form.allowedColleges.length === 0)
-//       err.allowedColleges = "Select at least one college";
-
-//     setErrors(err);
-//     return Object.keys(err).length === 0;
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-
-//     if (!validate()) {
-//       alert("Please fix the errors and try again");
-//       return;
-//     }
-
-//     try {
-//       await api.post("/exams/create", form);
-//       alert("Exam scheduled successfully!");
-
-//       setForm({
-//         sessionId: "",
-//         subjectId: "",
-//         examDate: "",
-//         examTime: "",
-//         allowedColleges: [],
-//       });
-//       setErrors({});
-//       setOpenCollegeDropdown(false);
-//     } catch (err) {
-//       console.log(err);
-//       alert("Error scheduling exam");
-//     }
-//   };
-
-//   // Toggle college selection (chips)
-//   const toggleCollege = (id) => {
-//     if (form.allowedColleges.includes(id)) {
-//       setForm({
-//         ...form,
-//         allowedColleges: form.allowedColleges.filter((x) => x !== id),
-//       });
-//     } else {
-//       setForm({
-//         ...form,
-//         allowedColleges: [...form.allowedColleges, id],
-//       });
-//     }
-//   };
-
-//   return (
-//     <div className="bgg">
-//       <div className="college-form-wrapper">
-//         <h2>Schedule Exam</h2>
-
-//         <form onSubmit={handleSubmit}>
-//           {/* Exam Session */}
-//           <select
-//             value={form.sessionId}
-//             onChange={(e) =>
-//               setForm({ ...form, sessionId: e.target.value, subjectId: "" })
-//             }
-//           >
-//             <option value="">Select Exam Session</option>
-//             {sessions.map((s) => (
-//               <option key={s._id} value={s._id}>
-//                 {s.name} - {s.academicYear} (Sem {s.semester})
-//               </option>
-//             ))}
-//           </select>
-//           <p className="error text-danger">{errors.sessionId}</p>
-
-//           {/* Subject */}
-//           <select
-//             value={form.subjectId}
-//             onChange={(e) =>
-//               setForm({ ...form, subjectId: e.target.value })
-//             }
-//             disabled={!form.sessionId}
-//           >
-//             <option value="">
-//               {form.sessionId ? "Select Subject" : "Select session first"}
-//             </option>
-//             {availableSubjects.map((sub) => (
-//               <option key={sub._id} value={sub._id}>
-//                 {sub.subjectCode} - {sub.subjectName}
-//               </option>
-//             ))}
-//           </select>
-//           <p className="error text-danger">{errors.subjectId}</p>
-
-//           {/* Exam Date */}
-//           <input
-//             type="date"
-//             value={form.examDate}
-//             onChange={(e) =>
-//               setForm({ ...form, examDate: e.target.value })
-//             }
-//           />
-//           <p className="error text-danger">{errors.examDate}</p>
-
-//           {/* Exam Time */}
-//           <input
-//             placeholder="Exam Time (e.g. 10:00 AM - 1:00 PM)"
-//             value={form.examTime}
-//             onChange={(e) =>
-//               setForm({ ...form, examTime: e.target.value })
-//             }
-//           />
-//           <p className="error text-danger">{errors.examTime}</p>
-
-//           {/* Allowed Colleges (Multi-select like chips) */}
-//           {/* <div className="multi-select-box">
-//             <div
-//               className="selected-area"
-//               onClick={() => setOpenCollegeDropdown(!openCollegeDropdown)}
-//             >
-//               {form.allowedColleges.length === 0 && (
-//                 <span>Select Allowed Colleges</span>
-//               )}
-
-//               {form.allowedColleges.map((colId) => {
-//                 const col = colleges.find((c) => c._id === colId);
-//                 return (
-//                   <span key={colId} className="chip">
-//                     {col?.name}
-//                     <span
-//                       className="remove-chip"
-//                       onClick={(e) => {
-//                         e.stopPropagation();
-//                         toggleCollege(colId);
-//                       }}
-//                     >
-//                       ×
-//                     </span>
-//                   </span>
-//                 );
-//               })}
-//             </div>
-
-//             {openCollegeDropdown && (
-//               <div className="dropdown">
-//                 {colleges.map((col) => (
-//                   <div
-//                     key={col._id}
-//                     className="dropdown-item"
-//                     onClick={() => toggleCollege(col._id)}
-//                   >
-//                     {col.name}
-//                   </div>
-//                 ))}
-//               </div>
-//             )}
-//           </div>
-//           <p className="error text-danger">{errors.allowedColleges}</p> */}
-//           {/* SEARCHABLE COLLEGE MULTI SELECT */}
-// <div className="subject-search-box">
-
-//   {/* Search Input */}
-//   <input
-//     type="text"
-//     className="subject-search-input"
-//     placeholder="Search college..."
-//     value={collegeSearch}
-//     onChange={(e) => {
-//       setCollegeSearch(e.target.value.toLowerCase());
-//       setShowCollegeSuggestions(true);
-//     }}
-//     onFocus={() => setShowCollegeSuggestions(true)}
-//   />
-
-//   {/* Selected Colleges */}
-//   <div className="selected-area">
-//     {form.allowedColleges.length === 0 && (
-//       <span className="placeholder">No colleges selected</span>
-//     )}
-
-//     {form.allowedColleges.map((id) => {
-//       const col = colleges.find((c) => c._id === id);
-//       return (
-//         <span className="chip" key={id}>
-//           {col?.name}
-//           <span
-//             className="remove-chip"
-//             onClick={() =>
-//               setForm({
-//                 ...form,
-//                 allowedColleges: form.allowedColleges.filter((x) => x !== id),
-//               })
-//             }
-//           >
-//             ×
-//           </span>
-//         </span>
-//       );
-//     })}
-//   </div>
-
-//   {/* Suggestions Dropdown */}
-//   {showCollegeSuggestions && collegeSearch && (
-//     <div className="dropdown">
-//       {colleges
-//         .filter((c) =>
-//           c.name.toLowerCase().includes(collegeSearch)
-//         )
-//         .slice(0, 8)
-//         .map((c) => (
-//           <div
-//             key={c._id}
-//             className="dropdown-item"
-//             onClick={() => {
-//               if (!form.allowedColleges.includes(c._id)) {
-//                 setForm({
-//                   ...form,
-//                   allowedColleges: [...form.allowedColleges, c._id],
-//                 });
-//               }
-//               setShowCollegeSuggestions(false);
-//               setCollegeSearch("");
-//             }}
-//           >
-//             {c.name}
-//           </div>
-//         ))}
-//     </div>
-//   )}
-// </div>
-
-// <p className="error text-danger">{errors.allowedColleges}</p>
-
-
-//           <button type="submit">Schedule Exam</button>
-//         </form>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default ScheduleExam;
-
-
-// import React, { useEffect, useState } from "react";
-// import api from "../../../api";
+// import { useNavigate } from "react-router-dom";
 
 // function ScheduleExam() {
 //   const [form, setForm] = useState({
@@ -305,13 +15,12 @@
 //   const [colleges, setColleges] = useState([]);
 //   const [errors, setErrors] = useState({});
 
-//   // college search controls
 //   const [collegeSearch, setCollegeSearch] = useState("");
 //   const [showCollegeSuggestions, setShowCollegeSuggestions] = useState(false);
-
-//   // ------------------------------
+//   const navigate = useNavigate()
+//   // ============================================
 //   // LOAD SESSIONS + COLLEGES
-//   // ------------------------------
+//   // ============================================
 //   useEffect(() => {
 //     const fetchData = async () => {
 //       try {
@@ -322,6 +31,7 @@
 
 //         setSessions(sessionRes.data);
 //         setColleges(collegeRes.data);
+
 //       } catch (err) {
 //         console.log(err);
 //       }
@@ -330,22 +40,27 @@
 //     fetchData();
 //   }, []);
 
-//   // ------------------------------
-//   // FETCH SUBJECTS FROM SESSION
-//   // ------------------------------
+//   // ============================================
+//   // GET SUBJECTS FROM SELECTED SESSION
+//   // ============================================
 //   const selectedSession = sessions.find((s) => s._id === form.sessionId);
 //   const availableSubjects = selectedSession?.subjects || [];
 
-//   // ------------------------------
-//   // FILTER COLLEGES BY SELECTED SUBJECT
-//   // ------------------------------
+//   // ============================================
+//   // FILTER COLLEGES BASED ON SELECTED SUBJECT
+//   // ============================================
 //   const filteredColleges = form.subjectId
-//     ? colleges.filter((c) => c.subjects?.includes(form.subjectId))
+//     ? colleges.filter((college) =>
+//         college.subjects?.some((sub) => {
+//           const realId = sub._id || sub; // handle object or string
+//           return String(realId) === String(form.subjectId);
+//         })
+//       )
 //     : [];
 
-//   // ------------------------------
+//   // ============================================
 //   // VALIDATION
-//   // ------------------------------
+//   // ============================================
 //   const validate = () => {
 //     let err = {};
 
@@ -361,9 +76,9 @@
 //     return Object.keys(err).length === 0;
 //   };
 
-//   // ------------------------------
-//   // SUBMIT
-//   // ------------------------------
+//   // ============================================
+//   // SUBMIT EXAM
+//   // ============================================
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
 
@@ -373,6 +88,7 @@
 //       await api.post("/exams/create", form);
 //       alert("Exam scheduled successfully!");
 
+//       // RESET FORM
 //       setForm({
 //         sessionId: "",
 //         subjectId: "",
@@ -380,18 +96,20 @@
 //         examTime: "",
 //         allowedColleges: [],
 //       });
+
 //       setCollegeSearch("");
 //       setShowCollegeSuggestions(false);
 //       setErrors({});
+//       navigate("/admin/exams/manage")
 //     } catch (err) {
 //       console.log(err);
 //       alert("Error scheduling exam");
 //     }
 //   };
 
-//   // ------------------------------
-//   // TOGGLE COLLEGE CHIP
-//   // ------------------------------
+//   // ============================================
+//   // TOGGLE COLLEGE SELECTION
+//   // ============================================
 //   const toggleCollege = (id) => {
 //     setForm((prev) => ({
 //       ...prev,
@@ -449,30 +167,38 @@
 //           <p className="error text-danger">{errors.subjectId}</p>
 
 //           {/* EXAM DATE */}
-//           <input
+//           {/* <input
 //             type="date"
 //             value={form.examDate}
 //             onChange={(e) => setForm({ ...form, examDate: e.target.value })}
 //           />
-//           <p className="error text-danger">{errors.examDate}</p>
+//           <p className="error text-danger">{errors.examDate}</p> */}
+//           {/* EXAM DATE */}
+// <input
+//   type="date"
+//   min={selectedSession ? selectedSession.startDate.split("T")[0] : ""}
+//   max={selectedSession ? selectedSession.endDate.split("T")[0] : ""}
+//   value={form.examDate}
+//   onChange={(e) => setForm({ ...form, examDate: e.target.value })}
+// />
+// <p className="error text-danger">{errors.examDate}</p>
+
 
 //           {/* EXAM TIME */}
 //           <input
-//             placeholder="Exam Time (e.g. 10:00 AM - 1:00 PM)"
+//             placeholder="Exam Time (e.g. 10 AM - 1 PM)"
 //             value={form.examTime}
 //             onChange={(e) => setForm({ ...form, examTime: e.target.value })}
 //           />
 //           <p className="error text-danger">{errors.examTime}</p>
 
-//           {/* COLLEGE MULTI SELECT */}
+//           {/* COLLEGE SEARCH + MULTI SELECT */}
 //           <div className="subject-search-box">
 //             <input
 //               type="text"
 //               className="subject-search-input"
 //               placeholder={
-//                 form.subjectId
-//                   ? "Search college..."
-//                   : "Select subject first"
+//                 form.subjectId ? "Search college..." : "Select subject first"
 //               }
 //               value={collegeSearch}
 //               disabled={!form.subjectId}
@@ -483,7 +209,7 @@
 //               onFocus={() => setShowCollegeSuggestions(true)}
 //             />
 
-//             {/* SELECTED COLLEGES */}
+//             {/* SELECTED COLLEGES (chips) */}
 //             <div className="selected-area">
 //               {form.allowedColleges.length === 0 && (
 //                 <span className="placeholder">No colleges selected</span>
@@ -505,29 +231,31 @@
 //               })}
 //             </div>
 
-//             {/* COLLEGE DROPDOWN (FILTERED BY SUBJECT) */}
-//             {showCollegeSuggestions && collegeSearch && form.subjectId && (
-//               <div className="dropdown">
-//                 {filteredColleges
-//                   .filter((c) =>
-//                     c.name.toLowerCase().includes(collegeSearch)
-//                   )
-//                   .slice(0, 8)
-//                   .map((c) => (
-//                     <div
-//                       key={c._id}
-//                       className="dropdown-item"
-//                       onClick={() => {
-//                         toggleCollege(c._id);
-//                         setCollegeSearch("");
-//                         setShowCollegeSuggestions(false);
-//                       }}
-//                     >
-//                       {c.name}
-//                     </div>
-//                   ))}
-//               </div>
-//             )}
+//             {/* FILTERED SUGGESTIONS */}
+//             {showCollegeSuggestions &&
+//               collegeSearch &&
+//               form.subjectId && (
+//                 <div className="dropdown">
+//                   {filteredColleges
+//                     .filter((c) =>
+//                       c.name.toLowerCase().includes(collegeSearch)
+//                     )
+//                     .slice(0, 8)
+//                     .map((c) => (
+//                       <div
+//                         key={c._id}
+//                         className="dropdown-item"
+//                         onClick={() => {
+//                           toggleCollege(c._id);
+//                           setCollegeSearch("");
+//                           setShowCollegeSuggestions(false);
+//                         }}
+//                       >
+//                         {c.name}
+//                       </div>
+//                     ))}
+//                 </div>
+//               )}
 //           </div>
 
 //           <p className="error text-danger">{errors.allowedColleges}</p>
@@ -546,60 +274,42 @@ import api from "../../../api";
 import { useNavigate } from "react-router-dom";
 
 function ScheduleExam() {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     sessionId: "",
     subjectId: "",
     examDate: "",
     examTime: "",
-    allowedColleges: [],
   });
 
   const [sessions, setSessions] = useState([]);
-  const [colleges, setColleges] = useState([]);
   const [errors, setErrors] = useState({});
 
-  const [collegeSearch, setCollegeSearch] = useState("");
-  const [showCollegeSuggestions, setShowCollegeSuggestions] = useState(false);
-  const navigate = useNavigate()
   // ============================================
-  // LOAD SESSIONS + COLLEGES
+  // LOAD EXAM SESSIONS
   // ============================================
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchSessions = async () => {
       try {
-        const [sessionRes, collegeRes] = await Promise.all([
-          api.get("/exam-sessions/all"),
-          api.get("/colleges/all"),
-        ]);
-
-        setSessions(sessionRes.data);
-        setColleges(collegeRes.data);
-
+        const res = await api.get("/exam-sessions/all");
+        setSessions(res.data);
       } catch (err) {
         console.log(err);
       }
     };
 
-    fetchData();
+    fetchSessions();
   }, []);
 
   // ============================================
-  // GET SUBJECTS FROM SELECTED SESSION
+  // SELECTED SESSION + SUBJECTS
   // ============================================
-  const selectedSession = sessions.find((s) => s._id === form.sessionId);
-  const availableSubjects = selectedSession?.subjects || [];
+  const selectedSession = sessions.find(
+    (s) => s._id === form.sessionId
+  );
 
-  // ============================================
-  // FILTER COLLEGES BASED ON SELECTED SUBJECT
-  // ============================================
-  const filteredColleges = form.subjectId
-    ? colleges.filter((college) =>
-        college.subjects?.some((sub) => {
-          const realId = sub._id || sub; // handle object or string
-          return String(realId) === String(form.subjectId);
-        })
-      )
-    : [];
+  const availableSubjects = selectedSession?.subjects || [];
 
   // ============================================
   // VALIDATION
@@ -611,9 +321,6 @@ function ScheduleExam() {
     if (!form.subjectId) err.subjectId = "Select a subject";
     if (!form.examDate) err.examDate = "Select exam date";
     if (!form.examTime.trim()) err.examTime = "Enter exam time";
-
-    if (form.allowedColleges.length === 0)
-      err.allowedColleges = "Select at least one college";
 
     setErrors(err);
     return Object.keys(err).length === 0;
@@ -629,37 +336,21 @@ function ScheduleExam() {
 
     try {
       await api.post("/exams/create", form);
-      alert("Exam scheduled successfully!");
+      alert("Exam scheduled successfully");
 
-      // RESET FORM
       setForm({
         sessionId: "",
         subjectId: "",
         examDate: "",
         examTime: "",
-        allowedColleges: [],
       });
 
-      setCollegeSearch("");
-      setShowCollegeSuggestions(false);
       setErrors({});
-      navigate("/admin/exams/manage")
+      navigate("/admin/exams/manage");
     } catch (err) {
       console.log(err);
       alert("Error scheduling exam");
     }
-  };
-
-  // ============================================
-  // TOGGLE COLLEGE SELECTION
-  // ============================================
-  const toggleCollege = (id) => {
-    setForm((prev) => ({
-      ...prev,
-      allowedColleges: prev.allowedColleges.includes(id)
-        ? prev.allowedColleges.filter((x) => x !== id)
-        : [...prev.allowedColleges, id],
-    }));
   };
 
   return (
@@ -668,7 +359,7 @@ function ScheduleExam() {
         <h2>Schedule Exam</h2>
 
         <form onSubmit={handleSubmit}>
-          {/* SESSION SELECT */}
+          {/* ================= SESSION ================= */}
           <select
             value={form.sessionId}
             onChange={(e) =>
@@ -676,7 +367,6 @@ function ScheduleExam() {
                 ...form,
                 sessionId: e.target.value,
                 subjectId: "",
-                allowedColleges: [],
               })
             }
           >
@@ -689,16 +379,18 @@ function ScheduleExam() {
           </select>
           <p className="error text-danger">{errors.sessionId}</p>
 
-          {/* SUBJECT SELECT */}
+          {/* ================= SUBJECT ================= */}
           <select
             value={form.subjectId}
             onChange={(e) =>
-              setForm({ ...form, subjectId: e.target.value, allowedColleges: [] })
+              setForm({ ...form, subjectId: e.target.value })
             }
             disabled={!form.sessionId}
           >
             <option value="">
-              {form.sessionId ? "Select Subject" : "Select session first"}
+              {form.sessionId
+                ? "Select Subject"
+                : "Select session first"}
             </option>
 
             {availableSubjects.map((sub) => (
@@ -709,99 +401,40 @@ function ScheduleExam() {
           </select>
           <p className="error text-danger">{errors.subjectId}</p>
 
-          {/* EXAM DATE */}
-          {/* <input
+          {/* ================= EXAM DATE ================= */}
+          <input
             type="date"
+            min={
+              selectedSession
+                ? selectedSession.startDate.split("T")[0]
+                : ""
+            }
+            max={
+              selectedSession
+                ? selectedSession.endDate.split("T")[0]
+                : ""
+            }
             value={form.examDate}
-            onChange={(e) => setForm({ ...form, examDate: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, examDate: e.target.value })
+            }
           />
-          <p className="error text-danger">{errors.examDate}</p> */}
-          {/* EXAM DATE */}
-<input
-  type="date"
-  min={selectedSession ? selectedSession.startDate.split("T")[0] : ""}
-  max={selectedSession ? selectedSession.endDate.split("T")[0] : ""}
-  value={form.examDate}
-  onChange={(e) => setForm({ ...form, examDate: e.target.value })}
-/>
-<p className="error text-danger">{errors.examDate}</p>
+          <p className="error text-danger">{errors.examDate}</p>
 
-
-          {/* EXAM TIME */}
+          {/* ================= EXAM TIME ================= */}
           <input
             placeholder="Exam Time (e.g. 10 AM - 1 PM)"
             value={form.examTime}
-            onChange={(e) => setForm({ ...form, examTime: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, examTime: e.target.value })
+            }
           />
           <p className="error text-danger">{errors.examTime}</p>
 
-          {/* COLLEGE SEARCH + MULTI SELECT */}
-          <div className="subject-search-box">
-            <input
-              type="text"
-              className="subject-search-input"
-              placeholder={
-                form.subjectId ? "Search college..." : "Select subject first"
-              }
-              value={collegeSearch}
-              disabled={!form.subjectId}
-              onChange={(e) => {
-                setCollegeSearch(e.target.value.toLowerCase());
-                setShowCollegeSuggestions(true);
-              }}
-              onFocus={() => setShowCollegeSuggestions(true)}
-            />
-
-            {/* SELECTED COLLEGES (chips) */}
-            <div className="selected-area">
-              {form.allowedColleges.length === 0 && (
-                <span className="placeholder">No colleges selected</span>
-              )}
-
-              {form.allowedColleges.map((id) => {
-                const col = colleges.find((c) => c._id === id);
-                return (
-                  <span className="chip" key={id}>
-                    {col?.name}
-                    <span
-                      className="remove-chip"
-                      onClick={() => toggleCollege(id)}
-                    >
-                      ×
-                    </span>
-                  </span>
-                );
-              })}
-            </div>
-
-            {/* FILTERED SUGGESTIONS */}
-            {showCollegeSuggestions &&
-              collegeSearch &&
-              form.subjectId && (
-                <div className="dropdown">
-                  {filteredColleges
-                    .filter((c) =>
-                      c.name.toLowerCase().includes(collegeSearch)
-                    )
-                    .slice(0, 8)
-                    .map((c) => (
-                      <div
-                        key={c._id}
-                        className="dropdown-item"
-                        onClick={() => {
-                          toggleCollege(c._id);
-                          setCollegeSearch("");
-                          setShowCollegeSuggestions(false);
-                        }}
-                      >
-                        {c.name}
-                      </div>
-                    ))}
-                </div>
-              )}
-          </div>
-
-          <p className="error text-danger">{errors.allowedColleges}</p>
+          {/* INFO NOTE */}
+          <p className="text-muted">
+            Allowed colleges are automatically applied from the exam session.
+          </p>
 
           <button type="submit">Schedule Exam</button>
         </form>

@@ -37,16 +37,77 @@ import ExamSession from "../Models/ExamSession.js";
 /**
  * Create a new exam session
  */
+// export const createExamSession = async (req, res) => {
+//   try {
+//     const { name, academicYear, semester, startDate, endDate, subjects } = req.body;
+
+//     // Basic validation
+//     if (!name || !academicYear || !semester || !startDate || !endDate) {
+//       return res.status(400).json({ msg: "All required fields must be provided" });
+//     }
+
+//     // Check if same session already exists for same semester in same year
+//     const exists = await ExamSession.findOne({
+//       name,
+//       academicYear,
+//       semester,
+//     });
+
+//     if (exists) {
+//       return res.status(409).json({
+//         msg: "Exam session already exists with same name/year/semester",
+//       });
+//     }
+
+//     // Create exam session
+//     const session = await ExamSession.create({
+//       name,
+//       academicYear,
+//       semester,
+//       startDate,
+//       endDate,
+//       subjects: subjects || [],
+//     });
+
+//     return res.status(201).json({
+//       msg: "Exam Session created successfully",
+//       session,
+//     });
+
+//   } catch (error) {
+//     console.error("Create session error:", error);
+//     return res.status(500).json({
+//       msg: "Server error while creating exam session",
+//       error: error.message,
+//     });
+//   }
+// };
 export const createExamSession = async (req, res) => {
   try {
-    const { name, academicYear, semester, startDate, endDate, subjects } = req.body;
+    const {
+      name,
+      academicYear,
+      semester,
+      startDate,
+      endDate,
+      subjects,
+      allowedColleges, // ✅ NEW
+    } = req.body;
 
-    // Basic validation
-    if (!name || !academicYear || !semester || !startDate || !endDate) {
-      return res.status(400).json({ msg: "All required fields must be provided" });
+    if (
+      !name ||
+      !academicYear ||
+      !semester ||
+      !startDate ||
+      !endDate ||
+      !Array.isArray(allowedColleges) ||
+      allowedColleges.length === 0
+    ) {
+      return res.status(400).json({
+        msg: "All fields including allowed colleges are required",
+      });
     }
 
-    // Check if same session already exists for same semester in same year
     const exists = await ExamSession.findOne({
       name,
       academicYear,
@@ -59,7 +120,6 @@ export const createExamSession = async (req, res) => {
       });
     }
 
-    // Create exam session
     const session = await ExamSession.create({
       name,
       academicYear,
@@ -67,13 +127,13 @@ export const createExamSession = async (req, res) => {
       startDate,
       endDate,
       subjects: subjects || [],
+      allowedColleges, // ✅ STORED HERE
     });
 
     return res.status(201).json({
       msg: "Exam Session created successfully",
       session,
     });
-
   } catch (error) {
     console.error("Create session error:", error);
     return res.status(500).json({

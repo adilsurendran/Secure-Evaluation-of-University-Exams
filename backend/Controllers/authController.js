@@ -81,11 +81,11 @@ export const loginUser = async (req, res) => {
 
     const user = await LOGIN.findOne({ username });
     if (!user)
-      return res.status(400).json({ msg: "Invalid email or password" });
+      return res.status(400).json({ msg: "Invalid email " });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
-      return res.status(400).json({ msg: "Invalid email or password" });
+      return res.status(400).json({ msg: "Invalid password" });
 
     // ==============================
     // FETCH PROFILE (UNCHANGED)

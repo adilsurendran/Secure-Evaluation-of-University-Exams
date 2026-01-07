@@ -445,17 +445,42 @@ export const getPendingSheets = async (req, res) => {
 //   }
 // }
 
+// export const postNotifiaction = async (req, res) => {
+//   try {
+//     const { message, semester } = req.body;
+
+//     if (!message || !semester || semester.length === 0) {
+//       return res.status(400).json({ message: "Message & semester required" });
+//     }
+
+//     const newNotification = await NOTIFICATION.create({
+//       message,
+//       semester, // ✅ array saved directly
+//     });
+
+//     return res.status(200).json({
+//       message: "Notification Sent Successfully",
+//       newNotification,
+//     });
+//   } catch (e) {
+//     console.log(e);
+//     return res.status(500).json({ msg: e.message });
+//   }
+// };
 export const postNotifiaction = async (req, res) => {
   try {
-    const { message, semester } = req.body;
+    const { message, semester, target } = req.body;
 
-    if (!message || !semester || semester.length === 0) {
-      return res.status(400).json({ message: "Message & semester required" });
+    if (!message || !semester || semester.length === 0 || !target) {
+      return res.status(400).json({
+        message: "Message, semester and target are required",
+      });
     }
 
     const newNotification = await NOTIFICATION.create({
       message,
-      semester, // ✅ array saved directly
+      semester,
+      target, // ✅ saved
     });
 
     return res.status(200).json({

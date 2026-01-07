@@ -75,60 +75,8 @@ if (res.data.role === "student") {
 
             <button type="submit">Login</button>
           </form>
-
-          {/* <p className="signup-text">
-            Don't have an account?{" "}
-            <span className="signup-link" onClick={() => setOpen(true)}>
-              Signup
-            </span>
-          </p> */}
         </div>
       </div>
-
-      {/* ===== SIGNUP MODAL ===== */}
-      {open && (
-        <div className="signup-modal-overlay">
-          <div className="signup-modal-box">
-            <h3 className="modal-title">Select Registration Type</h3>
-
-            <div className="modal-options">
-              <button
-                className="modal-btn"
-                onClick={() => {
-                  setOpen(false);
-                  navigate("/register-college");
-                }}
-              >
-                College
-              </button>
-
-              <button
-                className="modal-btn"
-                onClick={() => {
-                  setOpen(false);
-                  navigate("/register-staff");
-                }}
-              >
-                Staff
-              </button>
-
-              <button
-                className="modal-btn"
-                onClick={() => {
-                  setOpen(false);
-                  navigate("/register-student");
-                }}
-              >
-                Student
-              </button>
-            </div>
-
-            <button className="modal-close" onClick={() => setOpen(false)}>
-              Close
-            </button>
-          </div>
-        </div>
-      )}
     </>
   );
 }

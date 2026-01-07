@@ -23,6 +23,72 @@ function AddSubject() {
     navigate("/admin/subjects");
   };
 
+  const COURSE_LIST = [
+  // UG – Arts & Science
+  "BA English",
+  "BA Malayalam",
+  "BA Economics",
+  "BA History",
+  "BA Political Science",
+  "BSc Mathematics",
+  "BSc Physics",
+  "BSc Chemistry",
+  "BSc Computer Science",
+  "BSc Statistics",
+  "BSc Psychology",
+  "BSc Biotechnology",
+  "BSc Zoology",
+  "BSc Botany",
+
+  // UG – Commerce & Management
+  "BCom Finance",
+  "BCom Cooperation",
+  "BCom Computer Applications",
+  "BBA",
+  "BBM",
+
+  // UG – Computer / Tech
+  "BCA",
+  "BSc IT",
+  "BTech Computer Science",
+  "BTech Information Technology",
+  "BTech Electronics",
+  "BTech Mechanical",
+  "BTech Civil",
+
+  // PG – Arts & Science
+  "MA English",
+  "MA Economics",
+  "MA History",
+  "MSc Mathematics",
+  "MSc Physics",
+  "MSc Chemistry",
+  "MSc Computer Science",
+  "MSc Psychology",
+
+  // PG – Commerce / Management
+  "MCom Finance",
+  "MCom Marketing",
+  "MBA",
+  "MBA Finance",
+  "MBA HR",
+  "MBA Marketing",
+
+  // PG – Tech
+  "MCA",
+  "MTech Computer Science",
+  "MTech Electronics",
+
+  // Education & Others
+  "BEd",
+  "MEd",
+  "LLB",
+  "LLM",
+  "Diploma in Computer Applications",
+  "Diploma in Electronics"
+];
+
+
   return (
     <div className="admin-page">
 
@@ -47,13 +113,30 @@ function AddSubject() {
             required
           />
 
-          <input
+          {/* <input
             placeholder="Course (e.g., BCA)"
             onChange={(e) =>
               setForm({ ...form, course: e.target.value })
             }
             required
-          />
+          /> */}
+
+          <select
+  value={form.course}
+  onChange={(e) =>
+    setForm({ ...form, course: e.target.value })
+  }
+  required
+>
+  <option value="">Select Course</option>
+
+  {COURSE_LIST.map((course, index) => (
+    <option key={index} value={course}>
+      {course}
+    </option>
+  ))}
+</select>
+
 
           {/* <input
             type="number"

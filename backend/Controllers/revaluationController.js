@@ -11,50 +11,108 @@ import RevaluationResult from "../Models/RevaluationResult.js";
 // POST /revaluation/student/create
 // body: { answerSheetId, feeAmount, note }
 // ---------------------------
-export const createRevaluationRequest = async (req, res) => {
-  try {
-    const { answerSheetId, feeAmount = 0 } = req.body;
-    const studentId = req.body.studentId; // adapt to your auth
-    console.log(studentId);
+// export const createRevaluationRequest = async (req, res) => {
+//   try {
+//     const { answerSheetId, feeAmount = 0 } = req.body;
+//     const studentId = req.body.studentId; // adapt to your auth
+//     console.log(studentId);
     
 
-    // Validate answer sheet
-    const sheet = await AnswerSheet.findById(answerSheetId)
-      .populate("subjectId")
-      .populate("sessionId");
+//     // Validate answer sheet
+//     const sheet = await AnswerSheet.findById(answerSheetId)
+//       .populate("subjectId")
+//       .populate("sessionId");
 
-    if (!sheet) return res.status(404).json({ msg: "Answer sheet not found" });
+//     if (!sheet) return res.status(404).json({ msg: "Answer sheet not found" });
 
-    // Only allow revaluation for evaluated sheets
-    if (sheet.status !== "evaluated") {
-      return res.status(400).json({ msg: "Only evaluated sheets are eligible for revaluation" });
+//     // Only allow revaluation for evaluated sheets
+//     if (sheet.status !== "evaluated") {
+//       return res.status(400).json({ msg: "Only evaluated sheets are eligible for revaluation" });
+//     }
+
+//     // Prevent duplicate open revaluation for same sheet
+//     const existing = await RevaluationRequest.findOne({
+//       answerSheetId,
+//       studentId,
+//       status: { $in: ["pending", "approved", "assigned"] },
+//     });
+
+//     if (existing) {
+//       return res.status(400).json({ msg: "A revaluation request for this paper is already in progress" });
+//     }
+
+//     const request = await RevaluationRequest.create({
+//       answerSheetId,
+//       studentId,
+//       subjectId: sheet.subjectId._id,
+//       sessionId: sheet.sessionId._id,
+//       feeAmount,
+//       paymentStatus: feeAmount > 0 ? "pending" : "paid", // adjust per your payment flow
+//       status: "pending",
+//     });
+
+//     return res.status(201).json({ msg: "Revaluation request created", request });
+//   } catch (err) {
+//     console.log("CREATE REQUEST ERROR:", err);
+//     return res.status(500).json({ msg: err.message });
+//   }
+// };
+
+export const createRevaluationRequest = async (req, res) => {
+  try {
+    const { answerSheetId, studentId, feeAmount } = req.body;
+
+    const sheet = await AnswerSheet.findById(answerSheetId);
+
+    if (!sheet) {
+      return res.status(404).json({ msg: "Answer sheet not found" });
     }
 
-    // Prevent duplicate open revaluation for same sheet
-    const existing = await RevaluationRequest.findOne({
-      answerSheetId,
+    // 🚨 DUPLICATE CHECK (CRITICAL)
+    const alreadyExists = await RevaluationRequest.findOne({
       studentId,
-      status: { $in: ["pending", "approved", "assigned"] },
+      sessionId: sheet.sessionId,
+      subjectId: sheet.subjectId,
+      status: { $in: ["pending", "completed"] }
     });
 
-    if (existing) {
-      return res.status(400).json({ msg: "A revaluation request for this paper is already in progress" });
+    if (alreadyExists) {
+      return res.status(409).json({
+        msg: "Revaluation already requested for this subject"
+      });
     }
 
-    const request = await RevaluationRequest.create({
-      answerSheetId,
+    const request = new RevaluationRequest({
       studentId,
-      subjectId: sheet.subjectId._id,
-      sessionId: sheet.sessionId._id,
+      collegeId: sheet.collegeId,
+      sessionId: sheet.sessionId,
+      examId: sheet.examId,
+      subjectId: sheet.subjectId,
+      answerSheetId,
+      oldMarks: sheet.marks,
       feeAmount,
-      paymentStatus: feeAmount > 0 ? "pending" : "paid", // adjust per your payment flow
-      status: "pending",
+      paymentStatus: "pending",
+      status: "pending"
     });
 
-    return res.status(201).json({ msg: "Revaluation request created", request });
+    await request.save();
+
+    return res.json({
+      msg: "Revaluation request created successfully",
+      requestId: request._id
+    });
+
   } catch (err) {
-    console.log("CREATE REQUEST ERROR:", err);
-    return res.status(500).json({ msg: err.message });
+    console.error("CREATE REVAL ERROR:", err);
+
+    // 🧯 Handle DB unique index error
+    if (err.code === 11000) {
+      return res.status(409).json({
+        msg: "Revaluation already exists for this subject"
+      });
+    }
+
+    res.status(500).json({ msg: "Server error" });
   }
 };
 
@@ -352,21 +410,42 @@ export const autoAssignRevaluations = async (req, res) => {
       const previousStaffId = sheet.assignedStaff?.toString();
 
       // 3️⃣ Find eligible staff (INCLUDING availability)
+      // const eligibleStaff = staffList.filter(st => {
+      //   const teaches = st.subjects.some(
+      //     sub => sub._id.toString() === subjectId
+      //   );
+
+      //   const differentCollege =
+      //     st.collegeId._id.toString() !== studentCollegeId;
+
+      //   const notPrevious =
+      //     previousStaffId ? st._id.toString() !== previousStaffId : true;
+
+      //   const isAvailable = st.available === true; // ✅ NEW CONDITION
+
+      //   return teaches && differentCollege && notPrevious && isAvailable;
+      // });
+
       const eligibleStaff = staffList.filter(st => {
-        const teaches = st.subjects.some(
-          sub => sub._id.toString() === subjectId
-        );
+  // ❗ Guard clauses
+  if (!st.collegeId) return false;
+  if (!st.subjects || st.subjects.length === 0) return false;
 
-        const differentCollege =
-          st.collegeId._id.toString() !== studentCollegeId;
+  const teaches = st.subjects.some(
+    sub => sub._id.toString() === subjectId
+  );
 
-        const notPrevious =
-          previousStaffId ? st._id.toString() !== previousStaffId : true;
+  const differentCollege =
+    st.collegeId._id.toString() !== studentCollegeId;
 
-        const isAvailable = st.available === true; // ✅ NEW CONDITION
+  const notPrevious =
+    previousStaffId ? st._id.toString() !== previousStaffId : true;
 
-        return teaches && differentCollege && notPrevious && isAvailable;
-      });
+  const isAvailable = st.available === true;
+
+  return teaches && differentCollege && notPrevious && isAvailable;
+});
+
 
       if (eligibleStaff.length === 0) {
         reqDoc.status = "rejected";
@@ -628,5 +707,49 @@ export const publishRevaluationResults = async (req, res) => {
   } catch (err) {
     console.log("PUBLISH REV ERROR:", err);
     res.status(500).json({ msg: err.message });
+  }
+};
+
+
+// controllers/revaluationController.js
+
+export const checkRevaluationAllowed = async (req, res) => {
+  try {
+    const { studentId, sessionId, answerSheetId } = req.params;
+
+    // Get subject from answer sheet
+    const sheet = await AnswerSheet.findById(answerSheetId).select("subjectId");
+
+    if (!sheet) {
+      return res.status(404).json({
+        allowed: false,
+        message: "Answer sheet not found"
+      });
+    }
+
+    const exists = await RevaluationRequest.findOne({
+      studentId,
+      sessionId,
+      subjectId: sheet.subjectId,
+      status: { $in: ["pending", "completed"] }
+    });
+
+    if (exists) {
+      return res.json({
+        allowed: false,
+        message: "Revaluation already requested for this subject"
+      });
+    }
+
+    return res.json({
+      allowed: true
+    });
+
+  } catch (err) {
+    console.error("CHECK REVAL ERROR:", err);
+    res.status(500).json({
+      allowed: false,
+      message: "Server error"
+    });
   }
 };
