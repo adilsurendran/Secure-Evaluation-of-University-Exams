@@ -1,320 +1,7 @@
-// import React, { useEffect, useState } from "react";
-// import { useNavigate, useParams } from "react-router-dom";
-// import api from "../../../api";
-
-// function EditCollege() {
-//   const { id } = useParams(); // college ID from URL
-//   const navigate = useNavigate();
-//   const [open, setOpen] = useState(false);
-
-//   const [selectedCourse, setSelectedCourse] = useState("");
-  
-//   const [form, setForm] = useState({
-//     name: "",
-//     address: "",
-//     contact: "",
-//     email: "",
-//     subjects: [],
-//   });
-
-//   const [subjectsList, setSubjectsList] = useState([]);
-//   const [errors, setErrors] = useState({});
-//   const [searchText, setSearchText] = useState("");
-// const [showSuggestions, setShowSuggestions] = useState(false);
-
-
-//   // Load subjects + existing college data
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       try {
-//         const subRes = await api.get("/subjects/all");
-//         setSubjectsList(subRes.data);
-
-//         const colRes = await api.get(`/colleges/${id}`);
-//         const data = colRes.data;
-
-//         setForm({
-//           name: data.name,
-//           address: data.address,
-//           contact: data.contact,
-//           email: data.email,
-//           subjects: data.subjects?.map((s) => s._id) || [],
-//         });
-//       } catch (err) {
-//         console.log(err);
-//       }
-//     };
-
-//     fetchData();
-//   }, [id]);
-
-//   // Validation
-//   const validate = () => {
-//     let err = {};
-
-//     if (!form.name.trim()) err.name = "Name is required";
-//     if (!form.address.trim()) err.address = "Address is required";
-
-//     if (!/^\d{10}$/.test(form.contact))
-//       err.contact = "Enter valid 10-digit contact number";
-
-//     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
-//       err.email = "Enter valid email";
-
-//     if (form.subjects.length === 0)
-//       err.subjects = "Select at least 1 subject";
-
-//     setErrors(err);
-//     return Object.keys(err).length === 0;
-//   };
-
-//   // Submit update
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-
-//     if (!validate())
-//       return alert("Complete all fields in required format");
-
-//     try {
-//       await api.put(`/colleges/update/${id}`, form);
-//       alert("College Updated Successfully!");
-//       navigate("/admin/manage-colleges");
-//     } catch (err) {
-//       console.log(err);
-//     }
-//   };
-//     const COURSE_LIST = [
-//   // UG – Arts & Science
-//   "BA English",
-//   "BA Malayalam",
-//   "BA Economics",
-//   "BA History",
-//   "BA Political Science",
-//   "BSc Mathematics",
-//   "BSc Physics",
-//   "BSc Chemistry",
-//   "BSc Computer Science",
-//   "BSc Statistics",
-//   "BSc Psychology",
-//   "BSc Biotechnology",
-//   "BSc Zoology",
-//   "BSc Botany",
-
-//   // UG – Commerce & Management
-//   "BCom Finance",
-//   "BCom Cooperation",
-//   "BCom Computer Applications",
-//   "BBA",
-//   "BBM",
-
-//   // UG – Computer / Tech
-//   "BCA",
-//   "BSc IT",
-//   "BTech Computer Science",
-//   "BTech Information Technology",
-//   "BTech Electronics",
-//   "BTech Mechanical",
-//   "BTech Civil",
-
-//   // PG – Arts & Science
-//   "MA English",
-//   "MA Economics",
-//   "MA History",
-//   "MSc Mathematics",
-//   "MSc Physics",
-//   "MSc Chemistry",
-//   "MSc Computer Science",
-//   "MSc Psychology",
-
-//   // PG – Commerce / Management
-//   "MCom Finance",
-//   "MCom Marketing",
-//   "MBA",
-//   "MBA Finance",
-//   "MBA HR",
-//   "MBA Marketing",
-
-//   // PG – Tech
-//   "MCA",
-//   "MTech Computer Science",
-//   "MTech Electronics",
-
-//   // Education & Others
-//   "BEd",
-//   "MEd",
-//   "LLB",
-//   "LLM",
-//   "Diploma in Computer Applications",
-//   "Diploma in Electronics"
-// ];
-
-//   return (
-//     <div className="bgg">
-//       <div className="college-form-wrapper">
-//         <h2>Edit College</h2>
-
-//         <form onSubmit={handleSubmit}>
-
-//           <input
-//             placeholder="College Name"
-//             value={form.name}
-//             onChange={(e) => setForm({ ...form, name: e.target.value })}
-//           />
-//           <p className="error text-danger">{errors.name}</p>
-
-//           <textarea
-//             placeholder="Address"
-//             value={form.address}
-//             onChange={(e) => setForm({ ...form, address: e.target.value })}
-//           />
-//           <p className="error text-danger">{errors.address}</p>
-
-//           <input
-//             placeholder="Contact Number"
-//             value={form.contact}
-//             onChange={(e) => setForm({ ...form, contact: e.target.value })}
-//           />
-//           <p className="error text-danger">{errors.contact}</p>
-
-//           <input
-//             placeholder="Email"
-//             disabled
-//             value={form.email}
-//           />
-//           <p className="error text-danger">{errors.email}</p>
-
-//           <select
-//   value={selectedCourse}
-//   onChange={(e) => {
-//     const course = e.target.value;
-//     setSelectedCourse(course);
-
-//     if (!course) return;
-
-//     // Get subjects belonging to selected course
-//     const courseSubjectIds = subjectsList
-//       .filter((s) => s.course === course)
-//       .map((s) => s._id);
-
-//     // Merge with existing subjects (avoid duplicates)
-//     setForm((prev) => ({
-//       ...prev,
-//       subjects: Array.from(
-//         new Set([...prev.subjects, ...courseSubjectIds])
-//       ),
-//     }));
-//   }}
-// >
-//   <option value="">Select Course (Optional)</option>
-//   {COURSE_LIST.map((c, i) => (
-//     <option key={i} value={c}>{c}</option>
-//   ))}
-// </select>
- 
-
-//  {selectedCourse && (
-//   <button
-//     type="button"
-//     className="clear-course-btn"
-//     onClick={() => setSelectedCourse("")}
-//   >
-//     Clear Course Selection
-//   </button>
-// )}
-
-
-
-//           {/* SUBJECT SEARCH + MULTI SELECT */}
-// <div className="subject-search-box">
-
-//   {/* Search Input */}
-//   <input
-//     type="text"
-//     className="subject-search-input"
-//     placeholder="Search subject by name or code..."
-//     value={searchText}
-//     onChange={(e) => {
-//       setSearchText(e.target.value.toLowerCase());
-//       setShowSuggestions(true);
-//     }}
-//     onFocus={() => setShowSuggestions(true)}
-//   />
-
-//   {/* Selected Subjects */}
-//   <div className="selected-area">
-//     {form.subjects.length === 0 && (
-//       <span className="placeholder">No subjects selected</span>
-//     )}
-
-//     {form.subjects.map((id) => {
-//       const sub = subjectsList.find((s) => s._id === id);
-//       return (
-//         <span className="chip" key={id}>
-//           {sub?.subjectName} ({sub?.subjectCode})
-//           <span
-//             className="remove-chip"
-//             onClick={() =>
-//               setForm({
-//                 ...form,
-//                 subjects: form.subjects.filter((x) => x !== id),
-//               })
-//             }
-//           >
-//             ×
-//           </span>
-//         </span>
-//       );
-//     })}
-//   </div>
-
-//   {/* Suggestions Dropdown */}
-//   {showSuggestions && searchText && (
-//     <div className="dropdown">
-//       {subjectsList
-//         .filter(
-//           (s) =>
-//             s.subjectName.toLowerCase().includes(searchText) ||
-//             s.subjectCode.toLowerCase().includes(searchText)
-//         )
-//         .slice(0, 8)
-//         .map((s) => (
-//           <div
-//             key={s._id}
-//             className="dropdown-item"
-//             onClick={() => {
-//               if (!form.subjects.includes(s._id)) {
-//                 setForm({
-//                   ...form,
-//                   subjects: [...form.subjects, s._id],
-//                 });
-//               }
-//               setShowSuggestions(false);
-//               setSearchText("");
-//             }}
-//           >
-//             {s.subjectName} ({s.subjectCode})
-//           </div>
-//         ))}
-//     </div>
-//   )}
-// </div>
-
-// <p className="error text-danger">{errors.subjects}</p>
-
-
-//           <button>Save Changes</button>
-//         </form>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default EditCollege;
-
-
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../../api";
+import "./collegecss.css";
 
 function EditCollege() {
   const { id } = useParams();
@@ -332,63 +19,22 @@ function EditCollege() {
   const [errors, setErrors] = useState({});
   const [searchText, setSearchText] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
-
-  // ✅ NEW: selected courses (UI only)
   const [selectedCourses, setSelectedCourses] = useState([]);
 
   const COURSE_LIST = [
-    "BA English",
-    "BA Malayalam",
-    "BA Economics",
-    "BA History",
-    "BA Political Science",
-    "BSc Mathematics",
-    "BSc Physics",
-    "BSc Chemistry",
-    "BSc Computer Science",
-    "BSc Statistics",
-    "BSc Psychology",
-    "BSc Biotechnology",
-    "BSc Zoology",
-    "BSc Botany",
-    "BCom Finance",
-    "BCom Cooperation",
-    "BCom Computer Applications",
-    "BBA",
-    "BBM",
-    "BCA",
-    "BSc IT",
-    "BTech Computer Science",
-    "BTech Information Technology",
-    "BTech Electronics",
-    "BTech Mechanical",
-    "BTech Civil",
-    "MA English",
-    "MA Economics",
-    "MA History",
-    "MSc Mathematics",
-    "MSc Physics",
-    "MSc Chemistry",
-    "MSc Computer Science",
-    "MSc Psychology",
-    "MCom Finance",
-    "MCom Marketing",
-    "MBA",
-    "MBA Finance",
-    "MBA HR",
-    "MBA Marketing",
-    "MCA",
-    "MTech Computer Science",
-    "MTech Electronics",
-    "BEd",
-    "MEd",
-    "LLB",
-    "LLM",
-    "Diploma in Computer Applications",
-    "Diploma in Electronics",
+    "BA English", "BA Malayalam", "BA Economics", "BA History", "BA Political Science",
+    "BSc Mathematics", "BSc Physics", "BSc Chemistry", "BSc Computer Science",
+    "BSc Statistics", "BSc Psychology", "BSc Biotechnology", "BSc Zoology", "BSc Botany",
+    "BCom Finance", "BCom Cooperation", "BCom Computer Applications", "BBA", "BBM",
+    "BCA", "BSc IT", "BTech Computer Science", "BTech Information Technology",
+    "BTech Electronics", "BTech Mechanical", "BTech Civil",
+    "MA English", "MA Economics", "MA History", "MSc Mathematics", "MSc Physics",
+    "MSc Chemistry", "MSc Computer Science", "MSc Psychology",
+    "MCom Finance", "MCom Marketing", "MBA", "MBA Finance", "MBA HR", "MBA Marketing",
+    "MCA", "MTech Computer Science", "MTech Electronics",
+    "BEd", "MEd", "LLB", "LLM", "Diploma in Computer Applications", "Diploma in Electronics",
   ];
 
-  // ================= LOAD DATA =================
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -409,7 +55,6 @@ function EditCollege() {
           subjects: subjectIds,
         });
 
-        // ✅ AUTO-DETECT COURSES FROM EXISTING SUBJECTS
         const detectedCourses = subjects
           .filter((s) => subjectIds.includes(s._id))
           .map((s) => s.course);
@@ -423,19 +68,14 @@ function EditCollege() {
     fetchData();
   }, [id]);
 
-  // ================= VALIDATION =================
   const validate = () => {
     let err = {};
-
     if (!form.name.trim()) err.name = "Name is required";
     if (!form.address.trim()) err.address = "Address is required";
-
     if (!/^\d{10}$/.test(form.contact))
       err.contact = "Enter valid 10-digit contact number";
-
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       err.email = "Enter valid email";
-
     if (form.subjects.length === 0)
       err.subjects = "Select at least 1 subject";
 
@@ -443,7 +83,6 @@ function EditCollege() {
     return Object.keys(err).length === 0;
   };
 
-  // ================= SUBMIT =================
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return alert("Fix validation errors");
@@ -459,8 +98,13 @@ function EditCollege() {
 
   return (
     <div className="bgg">
+      <div className="back-container">
+        <button className="back-btn" onClick={() => navigate("/admin/manage-colleges")}>
+          ← Back to Colleges
+        </button>
+      </div>
       <div className="college-form-wrapper">
-        <h2>Edit College</h2>
+        <h2>✏️ Edit College</h2>
 
         <form onSubmit={handleSubmit}>
           <input
@@ -485,9 +129,9 @@ function EditCollege() {
           <p className="error">{errors.contact}</p>
 
           <input value={form.email} disabled />
+          <p className="form-label">Email cannot be changed</p>
           <p className="error">{errors.email}</p>
 
-          {/* ================= COURSE SELECT ================= */}
           <select
             onChange={(e) => {
               const course = e.target.value;
@@ -515,7 +159,6 @@ function EditCollege() {
             ))}
           </select>
 
-          {/* Selected Courses */}
           <div className="selected-area">
             {selectedCourses.length === 0 && (
               <span className="placeholder">No courses selected</span>
@@ -527,23 +170,17 @@ function EditCollege() {
                 <span
                   className="remove-chip"
                   onClick={() => {
-  // Remove course from selected courses
-  setSelectedCourses((prev) => prev.filter((c) => c !== course));
-
-  // Find subject IDs belonging to this course
-  const courseSubjectIds = subjectsList
-    .filter((s) => s.course === course)
-    .map((s) => s._id);
-
-  // Remove those subjects from form.subjects
-  setForm((prev) => ({
-    ...prev,
-    subjects: prev.subjects.filter(
-      (id) => !courseSubjectIds.includes(id)
-    ),
-  }));
-}}
-
+                    setSelectedCourses((prev) => prev.filter((c) => c !== course));
+                    const courseSubjectIds = subjectsList
+                      .filter((s) => s.course === course)
+                      .map((s) => s._id);
+                    setForm((prev) => ({
+                      ...prev,
+                      subjects: prev.subjects.filter(
+                        (id) => !courseSubjectIds.includes(id)
+                      ),
+                    }));
+                  }}
                 >
                   ×
                 </span>
@@ -551,7 +188,6 @@ function EditCollege() {
             ))}
           </div>
 
-          {/* ================= SUBJECT SEARCH ================= */}
           <div className="subject-search-box">
             <input
               type="text"
@@ -624,7 +260,16 @@ function EditCollege() {
 
           <p className="error">{errors.subjects}</p>
 
-          <button type="submit">Save Changes</button>
+          <div className="form-actions">
+            <button
+              type="button"
+              className="cancel-btn"
+              onClick={() => navigate("/admin/manage-colleges")}
+            >
+              Cancel
+            </button>
+            <button type="submit">Save Changes</button>
+          </div>
         </form>
       </div>
     </div>

@@ -31,17 +31,17 @@ function AddStudent() {
 
   // ================= COURSE LIST =================
   const COURSE_LIST = [
-    "BA English","BA Malayalam","BA Economics","BA History","BA Political Science",
-    "BSc Mathematics","BSc Physics","BSc Chemistry","BSc Computer Science",
-    "BSc Statistics","BSc Psychology","BSc Biotechnology","BSc Zoology","BSc Botany",
-    "BCom Finance","BCom Cooperation","BCom Computer Applications","BBA","BBM",
-    "BCA","BSc IT","BTech Computer Science","BTech Information Technology",
-    "BTech Electronics","BTech Mechanical","BTech Civil",
-    "MA English","MA Economics","MA History","MSc Mathematics","MSc Physics",
-    "MSc Chemistry","MSc Computer Science","MSc Psychology",
-    "MCom Finance","MCom Marketing","MBA","MBA Finance","MBA HR","MBA Marketing",
-    "MCA","MTech Computer Science","MTech Electronics",
-    "BEd","MEd","LLB","LLM","Diploma in Computer Applications","Diploma in Electronics"
+    "BA English", "BA Malayalam", "BA Economics", "BA History", "BA Political Science",
+    "BSc Mathematics", "BSc Physics", "BSc Chemistry", "BSc Computer Science",
+    "BSc Statistics", "BSc Psychology", "BSc Biotechnology", "BSc Zoology", "BSc Botany",
+    "BCom Finance", "BCom Cooperation", "BCom Computer Applications", "BBA", "BBM",
+    "BCA", "BSc IT", "BTech Computer Science", "BTech Information Technology",
+    "BTech Electronics", "BTech Mechanical", "BTech Civil",
+    "MA English", "MA Economics", "MA History", "MSc Mathematics", "MSc Physics",
+    "MSc Chemistry", "MSc Computer Science", "MSc Psychology",
+    "MCom Finance", "MCom Marketing", "MBA", "MBA Finance", "MBA HR", "MBA Marketing",
+    "MCA", "MTech Computer Science", "MTech Electronics",
+    "BEd", "MEd", "LLB", "LLM", "Diploma in Computer Applications", "Diploma in Electronics"
   ];
 
   // ================= LOAD SUBJECTS =================
@@ -99,200 +99,372 @@ function AddStudent() {
   };
 
   return (
-    <div className="bgg">
-      <div className="college-form-wrapper">
-        <h2>Add Student</h2>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-        <form onSubmit={handleSubmit}>
-          {/* NAME */}
-          <input
-            placeholder="Student Name"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-          />
-          <p className="text-danger">{errors.name}</p>
+        .admin-page {
+          padding: 40px;
+          min-height: 100vh;
+          background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 25%, #bfdbfe 50%, #e0f2fe 75%, #f0f9ff 100%);
+          font-family: 'Inter', sans-serif;
+        }
 
-          {/* ADMISSION NO */}
-          <input
-            placeholder="Admission Number"
-            value={form.admissionNo}
-            onChange={(e) =>
-              setForm({ ...form, admissionNo: e.target.value })
-            }
-          />
-          <p className="text-danger">{errors.admissionNo}</p>
+        .back-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 20px;
+          background: white;
+          color: #1e40af;
+          border: 2px solid #e0f2fe;
+          border-radius: 12px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          margin-bottom: 24px;
+          width: fit-content;
+          box-shadow: 0 2px 8px rgba(30, 64, 175, 0.05);
+        }
 
-          {/* EMAIL */}
-          <input
-            placeholder="Email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-          />
-          <p className="text-danger">{errors.email}</p>
+        .back-btn:hover {
+          background: #f0f9ff;
+          border-color: #3b82f6;
+          transform: translateX(-4px);
+        }
 
-          {/* PHONE */}
-          <input
-            placeholder="Phone Number"
-            value={form.phone}
-            onChange={(e) => setForm({ ...form, phone: e.target.value })}
-          />
-          <p className="text-danger">{errors.phone}</p>
+        .form-card {
+          max-width: 800px;
+          margin: 0 auto;
+          background: white;
+          border-radius: 24px;
+          padding: 40px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          border: 2px solid #e2e8f0;
+        }
 
-          {/* PASSWORD */}
-          <input
-            type="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-          />
-          <p className="text-danger">{errors.password}</p>
+        .form-card h2 {
+          font-size: 32px;
+          font-weight: 800;
+          background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          margin: 0 0 32px 0;
+          text-align: center;
+        }
 
-          {/* SEMESTER */}
-          <select
-            value={form.semester}
-            onChange={(e) => {
-              setForm({
-                ...form,
-                semester: e.target.value,
-                subjects: [],
-                department: "",
-              });
-              setSelectedCourse("");
-            }}
-          >
-            <option value="">Select Semester</option>
-            {[1,2,3,4,5,6,7,8].map((s) => (
-              <option key={s} value={s}>Sem {s}</option>
-            ))}
-          </select>
-          <p className="text-danger">{errors.semester}</p>
+        .form-card form {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
 
-          {/* COURSE */}
-          <select
-            disabled={!form.semester}
-            value={selectedCourse}
-            onChange={(e) => {
-              const course = e.target.value;
-              if (!course) return;
+        .form-card input,
+        .form-card select,
+        .form-card textarea {
+          width: 100%;
+          padding: 14px 18px;
+          border: 2px solid #e2e8f0;
+          border-radius: 12px;
+          font-size: 15px;
+          background: #f8fafc;
+          transition: all 0.3s ease;
+          color: #1e293b;
+        }
 
-              setSelectedCourse(course);
+        .form-card input:focus,
+        .form-card select:focus {
+          outline: none;
+          border-color: #3b82f6;
+          background: white;
+          box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
 
-              const courseSubjectIds = subjectsList
-                .filter(
-                  (s) =>
-                    s.course === course &&
-                    s.semester === Number(form.semester)
-                )
-                .map((s) => s._id);
+        .text-danger {
+          color: #ef4444;
+          font-size: 12px;
+          margin: -12px 0 0 4px;
+          font-weight: 500;
+        }
 
-              setForm((prev) => ({
-                ...prev,
-                department: course, // ✅ auto map
-                subjects: courseSubjectIds,
-              }));
-            }}
-          >
-            <option value="">Select Course</option>
-            {COURSE_LIST.map((c, i) => (
-              <option key={i} value={c}>{c}</option>
-            ))}
-          </select>
-          <p className="text-danger">{errors.course}</p>
+        .submit-btn {
+          width: 100%;
+          padding: 16px;
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          color: white;
+          border: none;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          margin-top: 16px;
+          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
 
-          {/* SELECTED COURSE CHIP */}
-          {selectedCourse && (
-            <div className="selected-area">
-              <span className="chip course-chip">
-                {selectedCourse}
-                <span
-                  className="remove-chip"
-                  onClick={() => {
-                    setSelectedCourse("");
-                    setForm((prev) => ({
-                      ...prev,
-                      department: "",
-                      subjects: [],
-                    }));
-                  }}
-                >
-                  ×
-                </span>
-              </span>
-            </div>
-          )}
+        .submit-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
 
-          {/* SUBJECT SEARCH */}
-          <div className="subject-search-box">
+        .subject-search-box { position: relative; margin-top: 8px; }
+        
+        .selected-area {
+          min-height: 50px;
+          padding: 12px;
+          background: #f8fafc;
+          border: 2px solid #e2e8f0;
+          border-radius: 12px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-bottom: 12px;
+        }
+
+        .chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 14px;
+          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+          color: white;
+          border-radius: 20px;
+          font-size: 13px;
+          font-weight: 600;
+        }
+
+        .course-chip { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+
+        .remove-chip { cursor: pointer; font-size: 16px; font-weight: bold; }
+
+        .dropdown {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: white;
+          border: 2px solid #3b82f6;
+          border-radius: 12px;
+          z-index: 1000;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+          max-height: 200px;
+          overflow-y: auto;
+        }
+
+        .dropdown-item {
+          padding: 12px 16px;
+          cursor: pointer;
+          border-bottom: 1px solid #e2e8f0;
+        }
+
+        .dropdown-item:hover { background: #eff6ff; color: #1e40af; }
+
+        @media (max-width: 768px) {
+          .admin-page { padding: 20px; }
+          .form-card { padding: 24px; }
+        }
+      `}</style>
+
+      <div className="admin-page">
+        <button className="back-btn" onClick={() => navigate("/college/students")}>
+          ← Back to Students
+        </button>
+
+        <div className="form-card">
+          <h2>🎓 Register New Student</h2>
+
+          <form onSubmit={handleSubmit}>
+            {/* NAME */}
             <input
-              className="subject-search-input"
-              placeholder="Search subjects..."
-              value={searchText}
-              onChange={(e) => {
-                setSearchText(e.target.value.toLowerCase());
-                setShowSuggestions(true);
-              }}
+              placeholder="Student Name"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
             />
+            <p className="text-danger">{errors.name}</p>
 
-            <div className="selected-area">
-              {form.subjects.map((id) => {
-                const sub = subjectsList.find((s) => s._id === id);
-                return (
-                  <span key={id} className="chip">
-                    {sub?.subjectName} ({sub?.subjectCode})
-                    <span
-                      className="remove-chip"
-                      onClick={() =>
-                        setForm({
-                          ...form,
-                          subjects: form.subjects.filter((x) => x !== id),
-                        })
-                      }
-                    >
-                      ×
-                    </span>
-                  </span>
-                );
-              })}
-            </div>
+            {/* ADMISSION NO */}
+            <input
+              placeholder="Admission Number"
+              value={form.admissionNo}
+              onChange={(e) =>
+                setForm({ ...form, admissionNo: e.target.value })
+              }
+            />
+            <p className="text-danger">{errors.admissionNo}</p>
 
-            {showSuggestions && searchText && (
-              <div className="dropdown">
-                {subjectsList
+            {/* EMAIL */}
+            <input
+              placeholder="Email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+            />
+            <p className="text-danger">{errors.email}</p>
+
+            {/* PHONE */}
+            <input
+              placeholder="Phone Number"
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            />
+            <p className="text-danger">{errors.phone}</p>
+
+            {/* PASSWORD */}
+            <input
+              type="password"
+              placeholder="Password"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+            />
+            <p className="text-danger">{errors.password}</p>
+
+            {/* SEMESTER */}
+            <select
+              value={form.semester}
+              onChange={(e) => {
+                setForm({
+                  ...form,
+                  semester: e.target.value,
+                  subjects: [],
+                  department: "",
+                });
+                setSelectedCourse("");
+              }}
+            >
+              <option value="">Select Semester</option>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
+                <option key={s} value={s}>Sem {s}</option>
+              ))}
+            </select>
+            <p className="text-danger">{errors.semester}</p>
+
+            {/* COURSE */}
+            <select
+              disabled={!form.semester}
+              value={selectedCourse}
+              onChange={(e) => {
+                const course = e.target.value;
+                if (!course) return;
+
+                setSelectedCourse(course);
+
+                const courseSubjectIds = subjectsList
                   .filter(
                     (s) =>
-                      s.semester === Number(form.semester) &&
-                      (s.subjectName.toLowerCase().includes(searchText) ||
-                        s.subjectCode.toLowerCase().includes(searchText))
+                      s.course === course &&
+                      s.semester === Number(form.semester)
                   )
-                  .slice(0, 7)
-                  .map((s) => (
-                    <div
-                      key={s._id}
-                      className="dropdown-item"
-                      onClick={() => {
-                        if (!form.subjects.includes(s._id)) {
-                          setForm({
-                            ...form,
-                            subjects: [...form.subjects, s._id],
-                          });
-                        }
-                        setSearchText("");
-                        setShowSuggestions(false);
-                      }}
-                    >
-                      {s.subjectName} ({s.subjectCode})
-                    </div>
-                  ))}
+                  .map((s) => s._id);
+
+                setForm((prev) => ({
+                  ...prev,
+                  department: course, // ✅ auto map
+                  subjects: courseSubjectIds,
+                }));
+              }}
+            >
+              <option value="">Select Course</option>
+              {COURSE_LIST.map((c, i) => (
+                <option key={i} value={c}>{c}</option>
+              ))}
+            </select>
+            <p className="text-danger">{errors.course}</p>
+
+            {/* SELECTED COURSE CHIP */}
+            {selectedCourse && (
+              <div className="selected-area">
+                <span className="chip course-chip">
+                  {selectedCourse}
+                  <span
+                    className="remove-chip"
+                    onClick={() => {
+                      setSelectedCourse("");
+                      setForm((prev) => ({
+                        ...prev,
+                        department: "",
+                        subjects: [],
+                      }));
+                    }}
+                  >
+                    ×
+                  </span>
+                </span>
               </div>
             )}
-          </div>
 
-          <p className="text-danger">{errors.subjects}</p>
+            {/* SUBJECT SEARCH */}
+            <div className="subject-search-box">
+              <input
+                className="subject-search-input"
+                placeholder="Search subjects..."
+                value={searchText}
+                onChange={(e) => {
+                  setSearchText(e.target.value.toLowerCase());
+                  setShowSuggestions(true);
+                }}
+              />
 
-          <button type="submit">Register Student</button>
-        </form>
+              <div className="selected-area">
+                {form.subjects.map((id) => {
+                  const sub = subjectsList.find((s) => s._id === id);
+                  return (
+                    <span key={id} className="chip">
+                      {sub?.subjectName} ({sub?.subjectCode})
+                      <span
+                        className="remove-chip"
+                        onClick={() =>
+                          setForm({
+                            ...form,
+                            subjects: form.subjects.filter((x) => x !== id),
+                          })
+                        }
+                      >
+                        ×
+                      </span>
+                    </span>
+                  );
+                })}
+              </div>
+
+              {showSuggestions && searchText && (
+                <div className="dropdown">
+                  {subjectsList
+                    .filter(
+                      (s) =>
+                        s.semester === Number(form.semester) &&
+                        (s.subjectName.toLowerCase().includes(searchText) ||
+                          s.subjectCode.toLowerCase().includes(searchText))
+                    )
+                    .slice(0, 7)
+                    .map((s) => (
+                      <div
+                        key={s._id}
+                        className="dropdown-item"
+                        onClick={() => {
+                          if (!form.subjects.includes(s._id)) {
+                            setForm({
+                              ...form,
+                              subjects: [...form.subjects, s._id],
+                            });
+                          }
+                          setSearchText("");
+                          setShowSuggestions(false);
+                        }}
+                      >
+                        {s.subjectName} ({s.subjectCode})
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+
+            <p className="text-danger">{errors.subjects}</p>
+
+            <button type="submit" className="submit-btn">Register Student</button>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

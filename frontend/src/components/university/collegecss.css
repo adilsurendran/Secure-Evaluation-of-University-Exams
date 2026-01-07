@@ -1,0 +1,308 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.bgg {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 25%, #bfdbfe 50%, #e0f2fe 75%, #f0f9ff 100%);
+  padding: 40px 20px;
+  font-family: 'Inter', sans-serif;
+}
+
+.college-form-wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 2px solid #e2e8f0;
+}
+
+.college-form-wrapper h2 {
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 32px 0;
+  text-align: center;
+}
+
+.college-form-wrapper form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.college-form-wrapper input,
+.college-form-wrapper textarea,
+.college-form-wrapper select {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  background: #f8fafc;
+  transition: all 0.3s ease;
+  color: #1e293b;
+}
+
+.college-form-wrapper textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.college-form-wrapper input:disabled {
+  background: #e2e8f0;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.college-form-wrapper input:focus,
+.college-form-wrapper textarea:focus,
+.college-form-wrapper select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.college-form-wrapper input::placeholder,
+.college-form-wrapper textarea::placeholder {
+  color: #94a3b8;
+}
+
+.college-form-wrapper select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 20px;
+  padding-right: 40px;
+}
+
+.error {
+  color: #ef4444;
+  font-size: 13px;
+  margin: -8px 0 0 4px;
+  font-weight: 500;
+}
+
+.form-label {
+  font-size: 13px;
+  color: #64748b;
+  margin: -8px 0 0 4px;
+  font-style: italic;
+}
+
+.college-form-wrapper button[type="submit"] {
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+  margin-top: 16px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.college-form-wrapper button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+
+.college-form-wrapper button[type="submit"]:active {
+  transform: translateY(0);
+}
+
+/* Subject Search Box */
+.subject-search-box {
+  position: relative;
+  margin-top: 8px;
+}
+
+.subject-search-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 15px;
+  background: #f8fafc;
+  transition: all 0.3s ease;
+}
+
+.subject-search-input:focus {
+  border-color: #3b82f6;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+.selected-area {
+  min-height: 60px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.placeholder {
+  color: #94a3b8;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.course-chip {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.remove-chip {
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 0 4px;
+  transition: all 0.2s ease;
+}
+
+.remove-chip:hover {
+  transform: scale(1.2);
+  color: #fee;
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #3b82f6;
+  border-radius: 12px;
+  margin-top: 4px;
+  max-height: 250px;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.dropdown-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item:hover {
+  background: #eff6ff;
+  color: #1e40af;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .bgg {
+    padding: 20px 15px;
+  }
+
+  .college-form-wrapper {
+    padding: 28px 20px;
+  }
+
+  .college-form-wrapper h2 {
+    font-size: 24px;
+  }
+
+  .college-form-wrapper input,
+  .college-form-wrapper textarea,
+  .college-form-wrapper select {
+    font-size: 14px;
+    padding: 12px 16px;
+  }
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: white;
+  color: #1e40af;
+  border: 2px solid #e0f2fe;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 24px;
+  width: fit-content;
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.05);
+  font-family: 'Inter', sans-serif;
+  max-width: fit-content;
+}
+
+.back-btn:hover {
+  background: #f0f9ff;
+  border-color: #3b82f6;
+  transform: translateX(-4px);
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.form-actions button[type="submit"] {
+  flex: 1;
+  margin-top: 0 !important;
+}
+
+.cancel-btn {
+  flex: 0.5;
+  padding: 14px 24px;
+  background: #f1f5f9;
+  color: #475569;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.cancel-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.back-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
