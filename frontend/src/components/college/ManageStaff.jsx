@@ -270,7 +270,8 @@ function ManageStaff() {
         }
 
         .edit-btn,
-        .delete-btn {
+        .delete-btn,
+        .availability-btn {
           padding: 8px 16px;
           border: none;
           border-radius: 8px;
@@ -300,6 +301,17 @@ function ManageStaff() {
         .delete-btn:hover {
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .availability-btn {
+          background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+          color: white;
+          box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+        }
+
+        .availability-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
         }
 
         @media (max-width: 1024px) {
@@ -411,6 +423,12 @@ function ManageStaff() {
                       </span>
                     </td>
                     <td className="action-col">
+                      <button
+                        onClick={() => toggleAvailability(s)}
+                        className="availability-btn"
+                      >
+                        Available?
+                      </button>
                       <button
                         onClick={() => navigate(`/college/staff/edit/${s._id}`)}
                         className="edit-btn"

@@ -404,7 +404,7 @@ export const getPendingSheets = async (req, res) => {
   try {
     const sessionId = req.params.sessionId;
     // console.log(sessionId);
-    
+
 
     const pending = await AnswerSheet.find({
       sessionId,
@@ -420,7 +420,7 @@ export const getPendingSheets = async (req, res) => {
       })
       .populate("subjectId");
 
-      // console.log(pending);
+    // console.log(pending);
 
     return res.json(pending);
   } catch (err) {
@@ -471,15 +471,22 @@ export const postNotifiaction = async (req, res) => {
   try {
     const { message, semester, target } = req.body;
 
-    if (!message || !semester || semester.length === 0 || !target) {
+    if (!message || !target) {
       return res.status(400).json({
-        message: "Message, semester and target are required",
+        message: "Message and target are required",
+      });
+    }
+
+    // Semester is ONLY required if target is student
+    if (target === "student" && (!semester || semester.length === 0)) {
+      return res.status(400).json({
+        message: "Semester selection is required for student notifications",
       });
     }
 
     const newNotification = await NOTIFICATION.create({
       message,
-      semester,
+      semester: target === "student" ? semester : [1, 2, 3, 4, 5, 6, 7, 8],
       target, // ✅ saved
     });
 
@@ -494,31 +501,31 @@ export const postNotifiaction = async (req, res) => {
 };
 
 
-export const allnotifications = async(req,res)=>{
-  try{
-    const all = await NOTIFICATION.find().sort({createdAt: -1})
-    return res.status(200).json({message:"Notification get Successfully",notifications:all})
+export const allnotifications = async (req, res) => {
+  try {
+    const all = await NOTIFICATION.find().sort({ createdAt: -1 })
+    return res.status(200).json({ message: "Notification get Successfully", notifications: all })
 
   }
-  catch(e){
+  catch (e) {
     console.log(e);
-        return res.status(500).json({ msg: e.message });
+    return res.status(500).json({ msg: e.message });
 
   }
 }
 
-export const deleteNotification = async(req,res)=>{
-  try{
-    const {id}= req.params
+export const deleteNotification = async (req, res) => {
+  try {
+    const { id } = req.params
     console.log(id);
     const deleted = await NOTIFICATION.findByIdAndDelete(id)
 
-        return res.status(200).json({message:"Notification deleted Successfully",deleted})
+    return res.status(200).json({ message: "Notification deleted Successfully", deleted })
 
   }
-  catch(e){
+  catch (e) {
     console.log(e);
-            return res.status(500).json({ msg: e.message });
+    return res.status(500).json({ msg: e.message });
 
   }
 }
@@ -529,15 +536,15 @@ export const deleteNotification = async(req,res)=>{
 //     const sem = await Student.findById(id).select("semester -_id")
 //     const semester = sem.semester
 //     console.log(semester);
-    
+
 //     const notifications = await NOTIFICATION.find({semester})
 //     console.log(notifications);
-    
-    
+
+
 //   }
 //   catch(e){
 //     console.log(e);
-    
+
 //   }
 // }
 
@@ -564,7 +571,7 @@ export const deleteNotification = async(req,res)=>{
 //     const notifications = await NOTIFICATION.find({ semester })
 //       // .sort({ createdAt: -1 });
 //       console.log(notifications);
-      
+
 
 //     // 3️⃣ Send response
 //     return res.status(200).json({
@@ -648,30 +655,22 @@ export const studentNotifications = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // 1️⃣ Get student semester
-    const student = await Student.findById(id)
-      .select("semester")
-      .lean();
-
-    console.log(student, "student");
+    const student = await Student.findById(id).select("semester").lean();
 
     if (!student || student.semester == null) {
-      return res.status(404).json({
-        message: "Student not found or semester missing",
-      });
+      return res.status(404).json({ message: "Student not found or semester missing" });
     }
 
-    // Ensure NUMBER
     const semester = Number(student.semester);
 
-    // 2️⃣ Fetch notifications where student's semester is inside array
+    // Filter by semester AND target (student or both)
     const notifications = await NOTIFICATION.find({
-      semester: { $in: [semester] }, // ✅ CORRECT
+      semester: { $in: [semester] },
+      target: { $in: ["student", "both"] }
     })
       .sort({ createdAt: -1 })
       .lean();
 
-    // 3️⃣ Response
     return res.status(200).json({
       semester,
       count: notifications.length,
@@ -679,26 +678,42 @@ export const studentNotifications = async (req, res) => {
     });
   } catch (error) {
     console.error("STUDENT NOTIFICATION ERROR:", error);
-    return res.status(500).json({
-      message: "Server error",
-      error: error.message,
+    return res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const staffNotifications = async (req, res) => {
+  try {
+    // Staff are not bound by semester in the model, but they evaluate subjects in semesters.
+    // However, for simplicity and based on the current schema, we fetch all notifications targetting staff or both.
+    const notifications = await NOTIFICATION.find({
+      target: { $in: ["staff", "both"] }
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return res.status(200).json({
+      notifications,
     });
+  } catch (error) {
+    console.error("STAFF NOTIFICATION ERROR:", error);
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
 
-export const getComplaints = async(req,res)=>{
-  const{status} = req.query
+export const getComplaints = async (req, res) => {
+  const { status } = req.query
   // console.log(status);
-  try{
-    const complaints = await Complaint.find({status}).populate("studentId","name").populate("collegeId","name")
+  try {
+    const complaints = await Complaint.find({ status }).populate("studentId", "name").populate("collegeId", "name")
     // console.log(complaints);
     return res.status(200).json({
       complaints
     });
-    
+
   }
-  catch(e){
+  catch (e) {
     console.log(e);
     return res.status(500).json({
       message: "Server error",
@@ -708,18 +723,18 @@ export const getComplaints = async(req,res)=>{
 }
 
 
-export const replayComplaints =async(req,res)=>{
-  
+export const replayComplaints = async (req, res) => {
+
   // console.log(complaintId,reply,status);
-  try{
-    const {complaintId} = req.params
-  const {reply,status}= req.body
-    const replyed = await Complaint.findByIdAndUpdate(complaintId,{status,reply})
+  try {
+    const { complaintId } = req.params
+    const { reply, status } = req.body
+    const replyed = await Complaint.findByIdAndUpdate(complaintId, { status, reply })
     return res.status(200).json({
       replyed
     });
   }
-   catch(e){
+  catch (e) {
     console.log(e);
     return res.status(500).json({
       message: "Server error",
@@ -728,17 +743,17 @@ export const replayComplaints =async(req,res)=>{
   }
 }
 
-export const fetchCounts = async(req,res)=>{
-  try{
-const subjects = await Subject.countDocuments()
-const colleges = await College.countDocuments()
-const sessions = await ExamSession.countDocuments()
-const exams = await Exam.countDocuments()
- return res.status(200).json({
-      subjects,colleges,sessions,exams
+export const fetchCounts = async (req, res) => {
+  try {
+    const subjects = await Subject.countDocuments()
+    const colleges = await College.countDocuments()
+    const sessions = await ExamSession.countDocuments()
+    const exams = await Exam.countDocuments()
+    return res.status(200).json({
+      subjects, colleges, sessions, exams
     });
   }
-  catch(e){
+  catch (e) {
     console.log(e);
     return res.status(500).json({
       message: "Server error",

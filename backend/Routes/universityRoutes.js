@@ -98,6 +98,7 @@ import {
   publishResults,
   replayComplaints,
   revaluationHistory,
+  staffNotifications,
   studentNotifications,
   valuationHistory
 } from "../Controllers/universityController.js";
@@ -211,8 +212,15 @@ universityRouter.delete(
 // Student-specific notifications (ADMIN + COLLEGE)
 universityRouter.get(
   "/getnotifications/:id",
-  roleMiddleware("admin", "college","student"),
+  roleMiddleware("admin", "college", "student"),
   studentNotifications
+);
+
+// Staff notifications
+universityRouter.get(
+  "/staff-notifications",
+  roleMiddleware("admin", "college", "staff"),
+  staffNotifications
 );
 
 /* =====================================================
@@ -248,8 +256,8 @@ universityRouter.get(
    📝 history
 ===================================================== */
 
-universityRouter.get("/history/valuation",roleMiddleware("admin"), valuationHistory);
-universityRouter.get("/history/revaluation",roleMiddleware("admin"), revaluationHistory);
-universityRouter.get("/history/answer-copy",roleMiddleware("admin"), answerCopyHistory);
+universityRouter.get("/history/valuation", roleMiddleware("admin"), valuationHistory);
+universityRouter.get("/history/revaluation", roleMiddleware("admin"), revaluationHistory);
+universityRouter.get("/history/answer-copy", roleMiddleware("admin"), answerCopyHistory);
 
 export default universityRouter;

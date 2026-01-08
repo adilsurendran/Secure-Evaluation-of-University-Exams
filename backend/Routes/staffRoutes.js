@@ -80,7 +80,8 @@ import {
   updateAvailability,
   getAssignedSheets,
   evaluateSheet,
-  EvaluationHistory
+  EvaluationHistory,
+  getStaffStats
 } from "../Controllers/staffController.js";
 
 import authMiddleware from "../middleware/authMiddleware.js";
@@ -164,6 +165,13 @@ staffRouter.get(
   "/evalhistory/:id",
   roleMiddleware("staff"),
   EvaluationHistory
+);
+
+// Dashboard stats
+staffRouter.get(
+  "/stats/:id",
+  roleMiddleware("staff"),
+  getStaffStats
 );
 
 export default staffRouter;

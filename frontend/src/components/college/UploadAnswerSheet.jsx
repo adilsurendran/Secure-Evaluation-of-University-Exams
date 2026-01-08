@@ -23,24 +23,43 @@ function UploadAnswerSheet() {
   const [loading, setLoading] = useState(false);
 
   // --------------------------
-  // 1. Load Exam Sessions + Students
+  // 1. Load Exam Sessions
   // --------------------------
   useEffect(() => {
-    const loadInitial = async () => {
+    const loadSessions = async () => {
       try {
-        const [sessRes, studentRes] = await Promise.all([
-          api.get("/exam-sessions/all"),
-          api.get(`/student/college/${collegeId}`),
-        ]);
-
-        setSessions(sessRes.data);
-        setStudents(studentRes.data);
+        const res = await api.get("/exam-sessions/all");
+        setSessions(res.data);
       } catch (err) {
-        console.log(err);
+        console.error("Error loading sessions:", err);
       }
     };
-    loadInitial();
-  }, [collegeId]);
+    loadSessions();
+  }, []);
+
+  // --------------------------
+  // 1b. Load Filtered Students
+  // --------------------------
+  useEffect(() => {
+    const loadFilteredStudents = async () => {
+      // Only fetch if both session and subject are selected
+      if (!form.sessionId || !form.subjectId) {
+        setStudents([]);
+        return;
+      }
+
+      try {
+        const res = await api.get(
+          `/student/college/${collegeId}?sessionId=${form.sessionId}&subjectId=${form.subjectId}`
+        );
+        setStudents(res.data);
+      } catch (err) {
+        console.error("Error fetching filtered students:", err);
+      }
+    };
+
+    loadFilteredStudents();
+  }, [collegeId, form.sessionId, form.subjectId]);
 
   // --------------------------
   // 2. Load Exams when Session changes
@@ -116,6 +135,7 @@ function UploadAnswerSheet() {
       ...form,
       examId,
       subjectId: exam?.subjectId?._id || "",
+      studentId: "", // Reset student when exam changes
     });
   };
 

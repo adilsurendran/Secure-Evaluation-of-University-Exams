@@ -227,8 +227,8 @@ function AdminHome() {
 
         /* MAIN CONTENT */
         .main-content {
-          flex: 1;
           margin-left: 280px;
+          width: calc(100% - 280px);
           min-height: 100vh;
           background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 25%, #bfdbfe 50%, #e0f2fe 75%, #f0f9ff 100%);
           transition: margin-left 0.3s ease;

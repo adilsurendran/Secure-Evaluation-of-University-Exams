@@ -1,4 +1,3 @@
-// src/components/student/StudentLayout.jsx
 import React from "react";
 import StudentSidebar from "./StudentSidebar";
 

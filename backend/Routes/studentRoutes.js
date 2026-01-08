@@ -118,6 +118,7 @@ import {
   postComplaint,
   getComplaint,
   studentMarkCopyPaid,
+  getStudentStats,
 } from "../Controllers/studentController.js";
 
 import {
@@ -160,8 +161,15 @@ studentRouter.get(
 // Get student by ID
 studentRouter.get(
   "/:id",
-  roleMiddleware("college","student"),
+  roleMiddleware("college", "student"),
   getStudentById
+);
+
+// Get student stats
+studentRouter.get(
+  "/stats/:id",
+  roleMiddleware("student"),
+  getStudentStats
 );
 
 // Update student

@@ -22,15 +22,19 @@ function Notification() {
   };
 
   const sendNotification = async () => {
-    if (!message || semester.length === 0 || !target) {
-      alert("Select target, semester(s) and enter message");
+    // Semester is required ONLY for students
+    const isStudent = target === "student";
+    const isSemesterEmpty = semester.length === 0;
+
+    if (!message || !target || (isStudent && isSemesterEmpty)) {
+      alert(isStudent ? "Select target semester(s) and enter message" : "Select audience and enter message");
       return;
     }
 
     try {
       const res = await api.post("/university/sendntification", {
         message,
-        semester,
+        semester: target === "student" ? semester : [1, 2, 3, 4, 5, 6, 7, 8],
         target,
       });
 
@@ -112,12 +116,21 @@ function Notification() {
           margin-top: 8px;
         }
 
+        .notification-page {
+          padding: 24px 32px;
+          min-height: 100vh;
+          width: 100%;
+          overflow-x: hidden;
+        }
+
         .notification-grid {
           display: grid;
           grid-template-columns: 1fr 1.2fr;
           gap: 32px;
-          max-width: 1400px;
-          margin: 0 auto;
+          width: 100%;
+          align-items: stretch;
+          height: calc(100vh - 180px);
+          min-height: 600px;
         }
 
         .notification-card {
@@ -128,7 +141,9 @@ function Notification() {
           box-shadow: 0 8px 32px rgba(30, 64, 175, 0.1);
           border: 1px solid rgba(255, 255, 255, 0.8);
           animation: fadeIn 0.8s ease;
-          height: fit-content;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
         }
 
         .notification-card h4 {
@@ -281,9 +296,11 @@ function Notification() {
           display: flex;
           flex-direction: column;
           gap: 20px;
-          max-height: 800px;
+          flex: 1;
           overflow-y: auto;
-          padding-right: 8px;
+          overflow-x: hidden;
+          padding: 4px 12px 4px 4px;
+          margin: 0 -12px 0 0;
         }
 
         .recent-list::-webkit-scrollbar {
@@ -309,6 +326,7 @@ function Notification() {
           transition: all 0.3s ease;
           position: relative;
           overflow: hidden;
+          flex-shrink: 0;
         }
 
         .recent-item:hover {
@@ -424,6 +442,12 @@ function Notification() {
         @media (max-width: 1024px) {
           .notification-grid {
             grid-template-columns: 1fr;
+            height: auto;
+            min-height: auto;
+          }
+          .notification-card {
+            height: auto;
+            max-height: 800px;
           }
         }
 
@@ -480,34 +504,47 @@ function Notification() {
                   <input
                     type="radio"
                     name="target"
+                    value="staff"
+                    checked={target === "staff"}
+                    onChange={(e) => setTarget(e.target.value)}
+                  />
+                  <div className="radio-box">👨‍🏫 Staff</div>
+                </label>
+
+                <label className="custom-radio">
+                  <input
+                    type="radio"
+                    name="target"
                     value="both"
                     checked={target === "both"}
                     onChange={(e) => setTarget(e.target.value)}
                   />
-                  <div className="radio-box">👥 Both</div>
+                  <div className="radio-box">👥 All</div>
                 </label>
               </div>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Target Semesters</label>
-              <div className="semester-chips">
-                {SEMESTERS.map((s) => (
-                  <div key={s}>
-                    <input
-                      type="checkbox"
-                      id={`sem-${s}`}
-                      className="semester-chip"
-                      checked={semester.includes(s)}
-                      onChange={() => toggleSemester(s)}
-                    />
-                    <label htmlFor={`sem-${s}`} className="chip-label">
-                      Sem {s}
-                    </label>
-                  </div>
-                ))}
+            {target === "student" && (
+              <div className="form-group" style={{ animation: 'fadeIn 0.5s ease' }}>
+                <label className="form-label">Target Semesters</label>
+                <div className="semester-chips">
+                  {SEMESTERS.map((s) => (
+                    <div key={s}>
+                      <input
+                        type="checkbox"
+                        id={`sem-${s}`}
+                        className="semester-chip"
+                        checked={semester.includes(s)}
+                        onChange={() => toggleSemester(s)}
+                      />
+                      <label htmlFor={`sem-${s}`} className="chip-label">
+                        Sem {s}
+                      </label>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="form-group">
               <label className="form-label">Message Content</label>
@@ -543,13 +580,17 @@ function Notification() {
                     <div className="item-header">
                       <div className="badge-group">
                         <span className="premium-badge badge-target">
-                          {n.target === 'both' ? '👥 Multi' : n.target === 'college' ? '🏛️ College' : '🎓 Student'}
+                          {n.target === 'both' ? '👥 All' : n.target === 'college' ? '🏛️ College' : n.target === 'staff' ? '👨‍🏫 Staff' : '🎓 Student'}
                         </span>
-                        {n.semester.map((s) => (
-                          <span key={s} className="premium-badge badge-sem">
-                            S{s}
-                          </span>
-                        ))}
+                        {n.target === "student" ? (
+                          n.semester.map((s) => (
+                            <span key={s} className="premium-badge badge-sem">
+                              S{s}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="premium-badge badge-sem">All Semesters</span>
+                        )}
                       </div>
                       <button
                         className="delete-icon-btn"

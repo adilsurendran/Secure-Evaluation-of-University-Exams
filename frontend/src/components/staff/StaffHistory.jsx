@@ -1,220 +1,246 @@
-// import React, { useEffect } from 'react'
-// import { useState } from 'react'
-// import { Table } from 'react-bootstrap'
-// import api from '../../../api';
-
-// function StaffHistory() {
-//   const staffId = localStorage.getItem("staffId");
-
-//   const [selected,setSelected] = useState("valuation")
-//   const [list,setlist] = useState([])
-//   console.log(selected);
-
-//   const GetSessions = async(req,res)=>{
-//     try{
-//       const res = await api.get(`/staff/evalhistory/${staffId}`,{params: { selected }} )
-//       console.log(res);
-//        setlist(res.data.history);
-//     }
-//     catch(e){
-//       console.log(e);
-//       alert(e.response.data.messsage || "failed")
-      
-//     }
-//   }
-//   useEffect(() => {
-//     GetSessions();
-//   }, [selected]);
-//   console.log(list);
-  
-//   return (
-//     <div>
-//       <select name="examsession" id="examsession" className='w-50' value={selected} onChange={(e)=>setSelected(e.target.value)}>
-//         <option value="valuation" defaultValue={"valuation"}>Normal</option>
-//         <option value="revaluation">Revaluation</option>
-//       </select>
-//         <Table striped bordered hover variant="dark" className='w-50'>
-//           <thead>
-//             <tr>
-//                 <th>#</th>
-//                 <th>Session</th>
-//                 <th>Subject code</th>
-//                 <th>Subject</th>
-//             </tr>
-//             </thead>
-//             <tbody>
-//               {list.length == 0 ?(
-//                 <tr>
-//       <td colSpan="4" className="text-center text-muted">
-//         No papers evaluated in this session
-//       </td>
-//     </tr>
-//               ):(
-
-              
-//             list.map((evaluated,i)=>
-
-//             <tr>
-//                 <td>{i+1}</td>
-//                 <td>{evaluated.sessionId.name}</td>
-//                 <td>{evaluated.subjectId.subjectCode}</td>
-//                 <td>{evaluated.subjectId.subjectName}</td>
-//             </tr>
-//                         )
-// )
-//             }
-//             </tbody>
-//             </Table>
-//     </div>
-//   )
-// }
-
-// export default StaffHistory
-import React, { useEffect, useState } from "react";
-import { Table, Card, Form, Container, Row, Col } from "react-bootstrap";
-import api from "../../../api";
+import React, { useEffect, useState, useMemo } from "react";
 import StaffSidebar from "./StaffSidebar";
+import api from "../../../api";
+import "./staff.css";
 
 function StaffHistory() {
   const staffId = localStorage.getItem("staffId");
 
   const [selected, setSelected] = useState("valuation");
   const [list, setList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
-  const GetSessions = async () => {
+  const fetchHistory = async () => {
     try {
+      setLoading(true);
       const res = await api.get(`/staff/evalhistory/${staffId}`, {
         params: { selected },
       });
       setList(res.data.history || []);
     } catch (e) {
-      console.log(e);
+      console.error("Error fetching history:", e);
       alert(e.response?.data?.message || "Failed to load history");
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    GetSessions();
-  }, [selected]);
+    fetchHistory();
+  }, [selected, staffId]);
+
+  // Derived filtered data
+  const filteredList = useMemo(() => {
+    return list.filter((item) => {
+      const sessionName = item.sessionId?.name?.toLowerCase() || "";
+      const subName = item.subjectId?.subjectName?.toLowerCase() || "";
+      const subCode = item.subjectId?.subjectCode?.toLowerCase() || "";
+
+      return sessionName.includes(search) || subName.includes(search) || subCode.includes(search);
+    });
+  }, [list, search]);
 
   return (
-    <div className="d-flex staff-container">
+    <div className="staff-container">
       <StaffSidebar />
-      
-      <Container fluid className="p-4 staff-main">
-        <Row className="mb-4">
-          <Col>
-            <h4 className="fw-semibold">Evaluation History</h4>
-            <p className="text-muted mb-0">
-              View all your evaluated papers across different sessions
-            </p>
-          </Col>
-        </Row>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-        {/* Filter Section */}
-        <Row className="mb-4">
-          <Col lg={4} md={6}>
-            <Card className="border-0 shadow-sm">
-              <Card.Body>
-                <Form.Group>
-                  <Form.Label className="fw-medium mb-2">
-                    Evaluation Type
-                  </Form.Label>
-                  <Form.Select
-                    value={selected}
-                    onChange={(e) => setSelected(e.target.value)}
-                    className="border-2"
-                  >
-                    <option value="valuation">Normal Valuation</option>
-                    <option value="revaluation">Revaluation</option>
-                  </Form.Select>
-                </Form.Group>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
+        .staff-page {
+          min-height: 100vh;
+          font-family: 'Inter', sans-serif;
+        }
 
-        {/* Table Section */}
-        <Row>
-          <Col>
-            {/* <Card className="border-0 shadow-sm">
-              <Card.Body className="p-0"> */}
-              <div className="bg-white p-3 rounded-3">
-                <div className="table-responsive">
-                  <Table hover className="mb-0">
-                    <thead className="bg-light">
-                      <tr>
-                        <th style={{ width: "5%" }} className="py-3 px-4 border-bottom">
-                          #
-                        </th>
-                        <th style={{ width: "25%" }} className="py-3 px-4 border-bottom">
-                          Session
-                        </th>
-                        <th style={{ width: "20%" }} className="py-3 px-4 border-bottom">
-                          Subject Code
-                        </th>
-                        <th style={{ width: "50%" }} className="py-3 px-4 border-bottom">
-                          Subject Name
-                        </th>
-                      </tr>
-                    </thead>
+        .staff-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 32px;
+          padding-bottom: 24px;
+          border-bottom: 2px solid rgba(30, 64, 175, 0.1);
+        }
 
-                    <tbody>
-                      {list.length === 0 ? (
-                        <tr>
-                          <td colSpan="4" className="text-center py-5">
-                            <div className="d-flex flex-column align-items-center">
-                              <i className="bi bi-folder-x text-muted" style={{ fontSize: "3rem" }}></i>
-                              <p className="text-muted mt-3 mb-0 fs-5">
-                                No papers evaluated in this session
-                              </p>
-                              <p className="text-muted">
-                                Switch evaluation type or check back later
-                              </p>
-                            </div>
-                          </td>
-                        </tr>
-                      ) : (
-                        list.map((evaluated, i) => (
-                          <tr key={evaluated._id} className="border-bottom">
-                            <td className="py-3 px-4">{i + 1}</td>
-                            <td className="py-3 px-4 fw-medium">
-                              {evaluated.sessionId?.name}
-                            </td>
-                            <td className="py-3 px-4">
-                              <span className="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2">
-                                {evaluated.subjectId?.subjectCode}
-                              </span>
-                            </td>
-                            <td className="py-3 px-4">
-                              {evaluated.subjectId?.subjectName}
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </Table>
-                </div>
-                
-                {/* Summary Footer */}
-                {list.length > 0 && (
-                  <div className="bg-light py-3 px-4 border-top">
-                    <div className="d-flex justify-content-between align-items-center">
-                      <div className="text-muted">
-                        Showing <span className="fw-medium">{list.length}</span> evaluated papers
-                      </div>
-                      <div className="text-muted">
-                        {selected === "valuation" ? "Normal Valuation" : "Revaluation"}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              {/* </Card.Body>
-            </Card> */}
-            </div>
-          </Col>
-        </Row>
-      </Container>
+        .staff-header h2 {
+          font-size: 32px;
+          font-weight: 800;
+          background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          margin: 0;
+        }
+
+        /* FILTER BAR */
+        .filter-bar {
+          display: flex;
+          gap: 16px;
+          background: white;
+          padding: 16px;
+          border-radius: 16px;
+          margin-bottom: 24px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+          border: 1px solid #e2e8f0;
+          flex-wrap: wrap;
+        }
+
+        .filter-bar input,
+        .filter-bar select {
+          padding: 12px 16px;
+          border: 1.5px solid #e2e8f0;
+          border-radius: 10px;
+          font-size: 14px;
+          font-family: inherit;
+          color: #1e293b;
+          transition: all 0.3s ease;
+        }
+
+        .filter-bar input:focus,
+        .filter-bar select:focus {
+          outline: none;
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .filter-bar input { flex: 1; min-width: 250px; }
+        .filter-bar select { min-width: 200px; cursor: pointer; }
+
+        /* TABLE */
+        .table-container {
+          background: white;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          border: 2px solid #e2e8f0;
+        }
+
+        .premium-table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        .premium-table thead {
+          background: #1e40af;
+          color: white;
+        }
+
+        .premium-table thead th {
+          padding: 16px;
+          text-align: left;
+          font-weight: 600;
+          font-size: 14px;
+          text-transform: uppercase;
+        }
+
+        .premium-table tbody tr {
+          border-bottom: 1px solid #e2e8f0;
+          transition: background 0.2s ease;
+        }
+
+        .premium-table tbody tr:hover {
+          background: #f8fafc;
+        }
+
+        .premium-table td {
+          padding: 16px;
+          color: #334155;
+          font-size: 15px;
+        }
+
+        .badge-session {
+          padding: 6px 12px;
+          background: #eff6ff;
+          color: #2563eb;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 13px;
+        }
+
+        .badge-code {
+          font-family: monospace;
+          background: #f1f5f9;
+          padding: 4px 8px;
+          border-radius: 4px;
+          color: #475569;
+          font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+          .staff-page { padding: 16px; }
+          .filter-bar { padding: 12px; }
+          .premium-table thead { display: none; }
+          .premium-table td { display: block; text-align: right; padding: 12px 16px; }
+          .premium-table td::before { content: attr(data-label); float: left; font-weight: 700; color: #64748b; }
+        }
+      `}</style>
+
+      <div className="staff-main-content staff-page">
+        <div className="staff-header">
+          <h2>📜 Evaluation History</h2>
+          <div style={{ color: '#64748b', fontWeight: 600 }}>
+            {filteredList.length} Records Found
+          </div>
+        </div>
+
+        <div className="filter-bar">
+          <input
+            type="text"
+            placeholder="Search by session, subject or paper code..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value.toLowerCase())}
+          />
+          <select
+            value={selected}
+            onChange={(e) => setSelected(e.target.value)}
+          >
+            <option value="valuation">Normal Valuation</option>
+            <option value="revaluation">Revaluation</option>
+          </select>
+        </div>
+
+        <div className="table-container">
+          <table className="premium-table">
+            <thead>
+              <tr>
+                <th style={{ width: "60px" }}>#</th>
+                <th>Exam Session</th>
+                <th>Subject Code</th>
+                <th>Subject Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan="4" style={{ textAlign: "center", padding: "48px", color: "#64748b" }}>
+                    Loading history logs...
+                  </td>
+                </tr>
+              ) : filteredList.length === 0 ? (
+                <tr>
+                  <td colSpan="4" style={{ textAlign: "center", padding: "48px", color: "#94a3b8" }}>
+                    {search ? "No matching records found." : "No evaluation history found for this category."}
+                  </td>
+                </tr>
+              ) : (
+                filteredList.map((item, index) => (
+                  <tr key={item._id}>
+                    <td data-label="#">{index + 1}</td>
+                    <td data-label="Exam Session">
+                      <span className="badge-session">{item.sessionId?.name}</span>
+                    </td>
+                    <td data-label="Subject Code">
+                      <span className="badge-code">{item.subjectId?.subjectCode}</span>
+                    </td>
+                    <td data-label="Subject Name">
+                      <strong>{item.subjectId?.subjectName}</strong>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

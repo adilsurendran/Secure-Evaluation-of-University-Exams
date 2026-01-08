@@ -57,7 +57,7 @@
 //     });
 //   } catch (err) {
 //     console.log(err);
-    
+
 //     return res.status(500).json({
 //       msg: "Server error",
 //       error: err.message,
@@ -246,7 +246,7 @@ export const getStaffById = async (req, res) => {
     return res.json(staff);
   } catch (err) {
     console.log(err);
-    
+
     return res.status(500).json({
       msg: "Server error",
       error: err.message,
@@ -349,7 +349,7 @@ import { attachSignedUrlsToSheets } from "../utils/signedUrlUtils.js";
 // export const getAssignedSheets = async (req, res) => {
 
 //   console.log(req.params.staffId,"gettttttttttttttttttttttttttttttttttttttttttt");
-  
+
 //   try {
 //     const sheets = await AnswerSheet.find({
 //       assignedStaff: req.params.staffId,
@@ -372,7 +372,7 @@ import { attachSignedUrlsToSheets } from "../utils/signedUrlUtils.js";
 //         { resource_type: "raw" }
 //       );
 //       console.log(signedUrl);
-      
+
 //       return {
 //         ...s.toObject(),
 //         fileUrl: signedUrl,  // ← FRONTEND CAN USE DIRECTLY
@@ -450,28 +450,71 @@ export const evaluateSheet = async (req, res) => {
   }
 };
 
-export const EvaluationHistory = async(req,res)=>{
-  try{
+export const EvaluationHistory = async (req, res) => {
+  try {
     // console.log(req);
-    
-    const {id} = req.params
-    const {selected} = req.query
-    console.log(id,selected);
-    
-    if(selected === "valuation"){
-      const history = await AnswerSheet.find({assignedStaff:id}).populate("sessionId", "name").populate("subjectId", "subjectCode subjectName")
-          return res.status(200).json({message:"Fetched evaltion history Successfull", history})
+
+    const { id } = req.params
+    const { selected } = req.query
+    console.log(id, selected);
+
+    if (selected === "valuation") {
+      const history = await AnswerSheet.find({ assignedStaff: id }).populate("sessionId", "name").populate("subjectId", "subjectCode subjectName")
+      return res.status(200).json({ message: "Fetched evaltion history Successfull", history })
 
     }
-    if(selected === "revaluation"){
-      const history = await RevaluationRequest.find({assignedStaff:id}).populate("sessionId", "name").populate("subjectId","subjectCode subjectName")
-       
-          return res.status(200).json({message:"Fetched revaluation history Successfully", history})
+    if (selected === "revaluation") {
+      const history = await RevaluationRequest.find({ assignedStaff: id }).populate("sessionId", "name").populate("subjectId", "subjectCode subjectName")
+
+      return res.status(200).json({ message: "Fetched revaluation history Successfully", history })
     }
-  }
-  catch(error){
+  } catch (error) {
     console.log(error);
     res.status(500).json({ msg: "Server error", error: error.message });
-    
   }
-}
+};
+
+export const getStaffStats = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // 1. Current Valuation Stats (Answer Sheets assigned to this staff)
+    const totalValuation = await AnswerSheet.countDocuments({ assignedStaff: id });
+    const pendingValuation = await AnswerSheet.countDocuments({
+      assignedStaff: id,
+      status: { $in: ["assigned", "uploaded"] }
+    });
+    const completedValuation = await AnswerSheet.countDocuments({
+      assignedStaff: id,
+      status: "evaluated"
+    });
+
+    // 2. Revaluation Stats (Revaluation requests assigned to this staff)
+    const totalRevaluation = await RevaluationRequest.countDocuments({ assignedStaff: id });
+    const pendingRevaluation = await RevaluationRequest.countDocuments({
+      assignedStaff: id,
+      status: "assigned"
+    });
+    const completedRevaluation = await RevaluationRequest.countDocuments({
+      assignedStaff: id,
+      status: "completed"
+    });
+
+    return res.status(200).json({
+      valuation: {
+        total: totalValuation,
+        pending: pendingValuation,
+        completed: completedValuation
+      },
+      revaluation: {
+        total: totalRevaluation,
+        pending: pendingRevaluation,
+        completed: completedRevaluation
+      }
+    });
+
+  } catch (error) {
+    console.error("STAFF STATS ERROR:", error);
+    return res.status(500).json({ msg: "Server error", error: error.message });
+  }
+};

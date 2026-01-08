@@ -12,14 +12,14 @@ import mongoose, { Schema } from "mongoose";
 
 const NotificationSchema = new Schema(
   {
-    semester: { type: [Number], required: true },
+    semester: { type: [Number] },
 
     message: { type: String, required: true },
 
     // ✅ NEW
     target: {
       type: String,
-      enum: ["college", "student", "both"],
+      enum: ["college", "student", "staff", "both"],
       required: true,
     },
   },

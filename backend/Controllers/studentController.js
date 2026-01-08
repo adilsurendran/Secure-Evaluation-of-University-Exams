@@ -3,6 +3,11 @@ import Student from "../Models/Student.js";
 import LOGIN from "../Models/Login.js";
 import Exam from "../Models/Exam.js";
 import ExamSession from "../Models/ExamSession.js";
+import Result from "../Models/Result.js";
+import RevaluationResult from "../Models/RevaluationResult.js";
+import Complaint from "../Models/Complaints.js";
+import AnswerCopyRequest from "../Models/AnswerCopyRequest.js";
+import RevaluationRequest from "../Models/RevaluationRequest.js";
 
 
 /* ======================================================
@@ -76,7 +81,25 @@ export const createStudent = async (req, res) => {
 ====================================================== */
 export const getStudentsByCollege = async (req, res) => {
   try {
-    const students = await Student.find({ collegeId: req.params.collegeId });
+    const { collegeId } = req.params;
+    const { sessionId, subjectId } = req.query;
+
+    let query = { collegeId };
+
+    // If sessionId is provided, filter by its semester
+    if (sessionId) {
+      const session = await ExamSession.findById(sessionId);
+      if (session) {
+        query.semester = session.semester;
+      }
+    }
+
+    // If subjectId is provided, check if student is enrolled in it
+    if (subjectId) {
+      query.subjects = subjectId;
+    }
+
+    const students = await Student.find(query);
     return res.json(students);
   } catch (err) {
     return res.status(500).json({ msg: "Server error", error: err.message });
@@ -89,7 +112,7 @@ export const getStudentsByCollege = async (req, res) => {
 export const getStudentById = async (req, res) => {
   try {
     const student = await Student.findById(req.params.id)
-    .populate("subjects", "subjectName subjectCode"); // ← FIX
+      .populate("subjects", "subjectName subjectCode"); // ← FIX
     if (!student) return res.status(404).json({ msg: "Student not found" });
     return res.json(student);
   } catch (err) {
@@ -119,7 +142,7 @@ export const updateStudent = async (req, res) => {
       semester,
       department,
       subjects: subjects || [], // ✅ update subjects if provided
-      admissionNo  
+      admissionNo
     };
 
     // --- PASSWORD UPDATE HANDLING ---
@@ -222,12 +245,10 @@ export const getStudentExamSchedule = async (req, res) => {
 };
 
 
-// controllers/student.result.controller.js
-import Result from "../Models/Result.js";
 
 export const getStudentResults = async (req, res) => {
   console.log("hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
-  
+
   try {
     const { studentId, sessionId } = req.params;
 
@@ -290,9 +311,6 @@ export const getStudentResultSessions = async (req, res) => {
   }
 };
 
-// controllers/studentResultController.js
-import RevaluationResult from "../Models/RevaluationResult.js";
-import Complaint from "../Models/Complaints.js";
 
 export const getStudentMarksheet = async (req, res) => {
   try {
@@ -349,20 +367,20 @@ export const getStudentMarksheet = async (req, res) => {
   }
 };
 
-export const postComplaint = async(req,res)=>{
-  const {studentId,complaint}= req.body
+export const postComplaint = async (req, res) => {
+  const { studentId, complaint } = req.body
   console.log(req.body);
-  
-  try{
+
+  try {
     const college = await Student.findById(studentId).select("collegeId -_id")
     // console.log(college.collegeId);
-    
+
     const newComplaint = await Complaint.create({
       studentId,
-      collegeId:college.collegeId,
+      collegeId: college.collegeId,
       complaint
     })
-      return res.status(201).json({
+    return res.status(201).json({
       msg: "Student registered successfully",
       newComplaint,
     });
@@ -372,16 +390,16 @@ export const postComplaint = async(req,res)=>{
       msg: "Server error",
       error: err.message,
     });
-  }  
+  }
 
 }
 
-export const getComplaint=async(req,res)=>{
-  try{
-    const {id} = req.params
+export const getComplaint = async (req, res) => {
+  try {
+    const { id } = req.params
     console.log(id);
-    const complaints = await Complaint.find({studentId:id})
-          return res.status(201).json({
+    const complaints = await Complaint.find({ studentId: id })
+    return res.status(201).json({
       msg: "Student registered successfully",
       complaints,
     });
@@ -391,11 +409,9 @@ export const getComplaint=async(req,res)=>{
       msg: "Server error",
       error: err.message,
     });
-  }  
+  }
 }
 
-
-import AnswerCopyRequest from "../Models/AnswerCopyRequest.js";
 
 export const studentMarkCopyPaid = async (req, res) => {
   try {
@@ -426,5 +442,54 @@ export const studentMarkCopyPaid = async (req, res) => {
       msg: "Server error",
       error: err.message
     });
+  }
+};
+
+export const getStudentStats = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // 1. Upcoming Exams count
+    const student = await Student.findById(id);
+    if (!student) return res.status(404).json({ msg: "Student not found" });
+
+    const sessions = await ExamSession.find({ semester: student.semester }).select("_id");
+    const sessionIds = sessions.map((s) => s._id);
+
+    const upcomingExamsCount = await Exam.countDocuments({
+      sessionId: { $in: sessionIds },
+      subjectId: { $in: student.subjects },
+      allowedColleges: student.collegeId,
+      examDate: { $gte: new Date().toISOString().split('T')[0] } // only future or today
+    });
+
+    // 2. Published Results (Number of sessions with published results for this student)
+    const resultSessions = await Result.find({
+      studentId: id,
+      published: true
+    }).distinct("sessionId");
+
+    // 3. Active Revaluation Requests (pending/approved/assigned)
+    const activeRevaluation = await RevaluationRequest.countDocuments({
+      studentId: id,
+      status: { $in: ["pending", "approved", "assigned"] }
+    });
+
+    // 4. Pending Answer Copy Requests
+    const pendingAnswerCopy = await AnswerCopyRequest.countDocuments({
+      studentId: id,
+      status: "pending"
+    });
+
+    return res.json({
+      exams: upcomingExamsCount,
+      results: resultSessions.length,
+      revaluation: activeRevaluation,
+      answerCopy: pendingAnswerCopy
+    });
+
+  } catch (error) {
+    console.error("STUDENT STATS ERROR:", error);
+    return res.status(500).json({ msg: "Server error", error: error.message });
   }
 };
