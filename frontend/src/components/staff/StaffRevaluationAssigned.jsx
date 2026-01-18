@@ -2,9 +2,11 @@ import React, { useEffect, useState, useMemo } from "react";
 import StaffSidebar from "./StaffSidebar";
 import api from "../../../api";
 import "./staff.css";
+import { useNavigate } from "react-router-dom";
 
 export default function StaffRevaluationEvaluate() {
   const staffId = localStorage.getItem("staffId");
+  const navigate = useNavigate()
 
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,22 +40,78 @@ export default function StaffRevaluationEvaluate() {
     });
   }, [requests, search]);
 
-  const openPdf = async (answerSheet) => {
-    try {
-      if (!answerSheet || !answerSheet.filePublicId) {
-        return alert("Answer sheet file reference missing.");
-      }
-      const res = await api.get(`/colleges/answers/signed-url/${answerSheet.filePublicId}`);
-      if (res.data?.url) {
-        window.open(res.data.url, "_blank");
-      } else {
-        alert("Cannot generate view link.");
-      }
-    } catch (err) {
-      console.error("PDF Open Error:", err);
-      alert("Cannot open PDF");
+  // const openPdf = async (answerSheet) => {
+  //   try {
+  //     if (!answerSheet || !answerSheet.filePublicId) {
+  //       return alert("Answer sheet file reference missing.");
+  //     }
+  //     const res = await api.get(`/colleges/answers/signed-url/${answerSheet.filePublicId}`);
+  //     if (res.data?.url) {
+  //       window.open(res.data.url, "_blank");
+  //     } else {
+  //       alert("Cannot generate view link.");
+  //     }
+  //   } catch (err) {
+  //     console.error("PDF Open Error:", err);
+  //     alert("Cannot open PDF");
+  //   }
+  // };
+// const openPdf = async (answerSheet) => {
+//   try {
+//     if (!answerSheet || !answerSheet.filePublicId) {
+//       return alert("Answer sheet file reference missing.");
+//     }
+
+//     const res = await api.get(
+//       `/colleges/answers/signed-url/${answerSheet.filePublicId}`,
+//       {
+//         params: {
+//           staffId: staffId
+//         }
+//       }
+//     );
+
+//     if (res.data?.url) {
+//       window.open(res.data.url, "_blank");
+//     } else {
+//       alert("Cannot generate view link.");
+//     }
+//   } catch (err) {
+//     console.error("PDF Open Error:", err);
+//     alert("Cannot open PDF");
+//   }
+// };
+const openPdf = async (answerSheet) => {
+  try {
+    if (!answerSheet || !answerSheet.filePublicId) {
+      return alert("Answer sheet file reference missing.");
     }
-  };
+
+    const res = await api.get(
+      `/colleges/answers/signed-url/${answerSheet.filePublicId}`,
+      {
+        params: {
+          staffId: staffId
+        }
+      }
+    );
+
+    if (res.data?.url) {
+      navigate("/staff/secure-pdf-viewer", {
+        state: {
+          url: res.data.url,
+          viewer: "staff"
+        }
+      });
+    } else {
+      alert("Unable to load PDF");
+    }
+  } catch (err) {
+    console.error("PDF OPEN ERROR", err);
+    alert("Failed to open secure PDF");
+  }
+};
+
 
   const submitEvaluation = async (reqId, maxAllowed) => {
     const newMarks = marksMap[reqId];
@@ -263,7 +321,7 @@ export default function StaffRevaluationEvaluate() {
                 <th>#</th>
                 <th>Student Details</th>
                 <th>Subject</th>
-                <th>Old Marks</th>
+                {/* <th>Old Marks</th> */}
                 <th>Answer Sheet</th>
                 <th>New Marks</th>
                 <th>Staff Remarks</th>
@@ -297,9 +355,9 @@ export default function StaffRevaluationEvaluate() {
                         <span className="id">Total: {r.subjectId?.total_mark}</span>
                       </div>
                     </td>
-                    <td>
+                    {/* <td>
                       <span className="old-marks">{r.answerSheetId?.marks}</span>
-                    </td>
+                    </td> */}
                     <td>
                       <button className="btn-open" onClick={() => openPdf(r.answerSheetId)}>
                         👁️ View PDF

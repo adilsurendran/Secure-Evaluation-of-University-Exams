@@ -2,9 +2,13 @@ import React, { useEffect, useState, useMemo } from "react";
 import StaffSidebar from "./StaffSidebar";
 import api from "../../../api";
 import "./staff.css";
+import { useNavigate } from "react-router-dom";
 
 function StaffAssigned() {
   const staffId = localStorage.getItem("staffId");
+  // console.log(staffId,"staffIdddddddddddd");
+  
+  const navigate = useNavigate();
 
   const [sheets, setSheets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -45,19 +49,48 @@ function StaffAssigned() {
     });
   }, [sheets, search]);
 
-  const openPdf = async (encryptedPublicId) => {
-    try {
-      const res = await api.get(`/colleges/answers/signed-url/${encryptedPublicId}`);
-      if (res.data.url) {
-        window.open(res.data.url, "_blank");
-      } else {
-        alert("Unable to load PDF");
+  // const openPdf = async (encryptedPublicId) => {
+  //   try {
+  //     const res = await api.get(`/colleges/answers/signed-url/${encryptedPublicId}`);
+  //     console.log(res);
+      
+  //     if (res.data.url) {
+  //       window.open(res.data.url, "_blank");
+  //     } else {
+  //       alert("Unable to load PDF");
+  //     }
+  //   } catch (err) {
+  //     console.log(err);
+      
+  //     alert("Failed to open secure PDF");
+  //   }
+  // };
+const openPdf = async (encryptedPublicId) => {
+  try {
+    const res = await api.get(
+      `/colleges/answers/signed-url/${encryptedPublicId}`,
+      {
+        params: {
+          staffId: staffId 
+        }
       }
-    } catch (err) {
-      alert("Failed to open secure PDF");
-    }
-  };
+    );
 
+    if (res.data?.url) {
+      navigate("/staff/secure-pdf-viewer", {
+        state: {
+          url: res.data.url,
+          viewer: "staff"
+        }
+      });
+    } else {
+      alert("Unable to load PDF");
+    }
+  } catch (err) {
+    console.error("PDF OPEN ERROR", err);
+    alert("Failed to open secure PDF");
+  }
+};
   const openMarkModal = (sheetId) => {
     const sheet = sheets.find((s) => s._id === sheetId);
     setMaxMark(sheet.subjectId?.total_mark || 100);

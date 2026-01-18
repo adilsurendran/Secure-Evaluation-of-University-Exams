@@ -94,7 +94,7 @@ function AddStudent() {
       navigate("/college/students");
     } catch (err) {
       console.log(err);
-      alert("Error registering student");
+      alert(err.response.data.msg||"Error registering student");
     }
   };
 

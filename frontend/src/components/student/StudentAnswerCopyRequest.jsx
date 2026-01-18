@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import api from "../../../api";
 import StudentLayout from "./StudentLayout";
 import "./student.css";
+import { useNavigate } from "react-router-dom";
 
 function StudentAnswerCopyRequest() {
   const studentId = localStorage.getItem("studentId");
@@ -14,6 +15,8 @@ function StudentAnswerCopyRequest() {
 
   const [loading, setLoading] = useState(true);
   const [loadingRequests, setLoadingRequests] = useState(true);
+  const navigate = useNavigate();
+
 
   /* ===========================
      LOAD OPTIONS + MY REQUESTS
@@ -135,22 +138,41 @@ function StudentAnswerCopyRequest() {
   /* ===========================
      VIEW PDF
   ============================ */
-  const viewApprovedPdf = async (requestId) => {
-    try {
-      const res = await api.get(
-        `/student/answer-copy/pdf/${requestId}`
-      );
+  // const viewApprovedPdf = async (requestId) => {
+  //   try {
+  //     const res = await api.get(
+  //       `/student/answer-copy/pdf/${requestId}`
+  //     );
 
-      if (res.data?.url) {
-        window.open(res.data.url, "_blank");
-      } else {
-        alert("Unable to load PDF");
-      }
-    } catch (err) {
-      console.log(err);
-      alert(err.response?.data?.msg || "Failed to open PDF");
+  //     if (res.data?.url) {
+  //       window.open(res.data.url, "_blank");
+  //     } else {
+  //       alert("Unable to load PDF");
+  //     }
+  //   } catch (err) {
+  //     console.log(err);
+  //     alert(err.response?.data?.msg || "Failed to open PDF");
+  //   }
+  // };
+const viewApprovedPdf = async (requestId) => {
+  try {
+    const res = await api.get(`/student/answer-copy/pdf/${requestId}`);
+
+    if (res.data?.url) {
+      navigate("/student/secure-pdf-viewer", {
+        state: {
+          url: res.data.url,
+          viewer: "student"
+        }
+      });
+    } else {
+      alert("Unable to load PDF");
     }
-  };
+  } catch (err) {
+    console.error("PDF OPEN ERROR:", err);
+    alert(err.response?.data?.msg || "Failed to open PDF");
+  }
+};
 
   const getStatusColor = (status) => {
     switch (status) {

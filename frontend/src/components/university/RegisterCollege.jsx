@@ -52,8 +52,9 @@ function RegisterCollege() {
     if (!form.name.trim()) err.name = "Name is required";
     if (!form.address.trim()) err.address = "Address is required";
     if (!form.password.trim()) err.password = "Password is required";
-    if (!/^\d{10}$/.test(form.contact))
-      err.contact = "Enter valid 10-digit contact number";
+    if (!/^\d{10,}$/.test(form.contact)) {
+  err.contact = "Contact number must contain at least 10 digits";
+}
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       err.email = "Enter valid email";
     if (form.subjects.length === 0)

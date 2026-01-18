@@ -63,20 +63,44 @@ function ViewUploadedSheets() {
     }
   };
 
-  // ================= OPEN SECURE SIGNED PDF LINK =================
+  // // ================= OPEN SECURE SIGNED PDF LINK =================
+  // const openPdf = async (encryptedId) => {
+  //   console.log("encryptedId",  encryptedId);
+    
+  //   try {
+  //     const res = await api.get(`/colleges/answers/signed-url/${encryptedId}`);
+  //     if (res.data?.url) {
+  //       window.open(res.data.url, "_blank");
+  //     } else {
+  //       alert("Unable to generate secure link");
+  //     }
+  //   } catch (err) {
+  //     console.log("SIGNED URL ERROR", err);
+  //     alert("Failed to open secure PDF");
+  //   }
+  // };
   const openPdf = async (encryptedId) => {
-    try {
-      const res = await api.get(`/colleges/answers/signed-url/${encryptedId}`);
-      if (res.data?.url) {
-        window.open(res.data.url, "_blank");
-      } else {
-        alert("Unable to generate secure link");
-      }
-    } catch (err) {
-      console.log("SIGNED URL ERROR", err);
-      alert("Failed to open secure PDF");
+  try {
+    const res = await api.get(
+      `/colleges/answers/signed-url/${encryptedId}`
+    );
+console.log(res);
+
+    if (res.data?.url) {
+      navigate("/college/secure-pdf-viewer", {
+        state: { url: res.data.url }
+      });
+    } else {
+      alert("Unable to generate secure link");
     }
-  };
+
+  } catch (err) {
+    console.error("SIGNED URL ERROR", err);
+    alert("Failed to open secure PDF");
+  }
+};
+
+
 
   return (
     <>

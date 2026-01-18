@@ -387,10 +387,34 @@ import { attachSignedUrlsToSheets } from "../utils/signedUrlUtils.js";
 //   }
 // };
 
+// export const getAssignedSheets = async (req, res) => {
+//   try {
+//     const sheets = await AnswerSheet.find({
+//       assignedStaff: req.params.staffId,
+//       status: { $in: ["assigned", "uploaded"] }
+//     })
+//       .populate("studentId", "name admissionNo")
+//       .populate("subjectId", "subjectName subjectCode total_mark")
+//       .populate("examId")
+//       .populate("sessionId");
+
+//     // Staff should have shorter-lived access
+//     const finalSheets = attachSignedUrlsToSheets(sheets, 10 * 60); // 10 min
+
+//     res.json(finalSheets);
+
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).json({ msg: "Server error", error: err.message });
+//   }
+// };
+
 export const getAssignedSheets = async (req, res) => {
   try {
+    const staffId = req.params.staffId;
+
     const sheets = await AnswerSheet.find({
-      assignedStaff: req.params.staffId,
+      assignedStaff: staffId,
       status: { $in: ["assigned", "uploaded"] }
     })
       .populate("studentId", "name admissionNo")
@@ -398,16 +422,25 @@ export const getAssignedSheets = async (req, res) => {
       .populate("examId")
       .populate("sessionId");
 
-    // Staff should have shorter-lived access
-    const finalSheets = attachSignedUrlsToSheets(sheets, 10 * 60); // 10 min
+    // Return metadata only (NO signed URLs)
+    const response = sheets.map(s => {
+      const sheet = s.toObject();
+      delete sheet.fileUrl;
+      delete sheet.filePublicUrl;
+      return sheet;
+    });
 
-    res.json(finalSheets);
+    return res.json(response);
 
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ msg: "Server error", error: err.message });
+    console.error("GET ASSIGNED SHEETS ERROR:", err);
+    return res.status(500).json({
+      msg: "Server error",
+      error: err.message
+    });
   }
 };
+
 
 export const evaluateSheet = async (req, res) => {
   try {

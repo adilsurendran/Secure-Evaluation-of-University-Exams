@@ -162,8 +162,6 @@ export const uploadAnswerSheet = async (req, res) => {
           {
             folder: "answer_sheets",
             resource_type: "raw",
-            // use_filename: true,
-            // unique_filename: false,
             public_id: `sheet_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`, 
             type: "authenticated",
             format: "pdf"
@@ -203,34 +201,28 @@ export const uploadAnswerSheet = async (req, res) => {
 };
 
 
+
 // export const getSheetsByCollege = async (req, res) => {
 //   try {
-//     const sheets = await AnswerSheet.find({ collegeId: req.params.collegeId })
+//     const sheets = await AnswerSheet.find({
+//       collegeId: req.params.collegeId
+//     })
 //       .populate("studentId", "name admissionNo")
 //       .populate("subjectId", "subjectName subjectCode")
 //       .populate("examId")
 //       .populate("sessionId");
 
-//     const finalSheets = sheets.map((s) => {
-//       const realPublicId = decrypt(s.filePublicId);
-//       // console.log(s.filePublicId);
-//       // console.log(realPublicId);
-      
-      
+//     // 1 hour expiry (same as before)
+//     // const finalSheets = attachSignedUrlsToSheets(sheets, 60 * 60);
 
-//       const signedUrl = cloudinary.utils.private_download_url(
-//         realPublicId,
-//         "pdf",
-//         {
-//           type: "authenticated",
-//           expires_at: Math.floor(Date.now() / 1000) + 3600 // 1 hour
-//         }
-//       );
+//     // res.json(finalSheets);
+//     res.json(
+//   sheets.map(s => ({
+//     ...s.toObject(),
+//     fileUrl: undefined // or omit entirely
+//   }))
+// );
 
-//       return { ...s.toObject(), fileUrl: signedUrl };
-//     });
-
-//     res.json(finalSheets);
 
 //   } catch (err) {
 //     console.log(err);
@@ -247,36 +239,34 @@ export const getSheetsByCollege = async (req, res) => {
       .populate("examId")
       .populate("sessionId");
 
-    // 1 hour expiry (same as before)
-    const finalSheets = attachSignedUrlsToSheets(sheets, 60 * 60);
+    // Return metadata only (NO file URLs)
+    const response = sheets.map(s => {
+      const sheet = s.toObject();
+      delete sheet.fileUrl;        // safety (if exists)
+      delete sheet.filePublicUrl;  // safety (if exists)
+      return sheet;
+    });
 
-    res.json(finalSheets);
+    return res.json(response);
 
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ msg: "Server error", error: err.message });
+    console.error("GET SHEETS BY COLLEGE ERROR:", err);
+    return res.status(500).json({
+      msg: "Server error",
+      error: err.message
+    });
   }
 };
 
+
 // export const getSignedPdfUrl = async (req, res) => {
 //   try {
-//     const encryptedPath = req.params.encrypted;
-//     const publicId = decrypt(encryptedPath);
-//     console.log("decrypted public",publicId);
-    
+//     const { encrypted } = req.params;
 
-//     // FIXED: use private_download_url instead of signed_url
-//     const signedUrl = cloudinary.utils.private_download_url(
-//       publicId,
-//       "pdf",      // file format
-//       {
-//         resource_type: "raw",
-//         type: "authenticated",
-//         expires_at: Math.floor(Date.now() / 1000) + 60 * 5 // 5 minutes
-//       }
+//     const signedUrl = generateSignedPdfUrl(
+//       encrypted,
+//       5 * 60 // 5 minutes
 //     );
-
-//     console.log("SIGNED:", signedUrl);
 
 //     return res.json({ url: signedUrl });
 
@@ -285,23 +275,229 @@ export const getSheetsByCollege = async (req, res) => {
 //     return res.status(500).json({ msg: err.message });
 //   }
 // };
- 
+
+// export const getSignedPdfUrl = async (req, res) => {
+//   try {
+//     const { encrypted } = req.params;
+//     // const staffId = req.user.id;
+//     const role = req.user.role;
+//     console.log(role);
+//     const staffIdFromClient = req.query.staffId;
+    
+
+//     // 1️⃣ Role check
+//     if (role !== "staff" && role !== "college") {
+//       return res.status(403).json({ msg: "Access denied at first" });
+//     }
+
+//     // 2️⃣ Decrypt publicId
+//     const publicId = decrypt(encrypted);
+
+//     // 3️⃣ OPTIONAL: ownership / assignment check (recommended)
+//     const sheet = await AnswerSheet.findOne({ filePublicId: encrypted });
+
+//     if (!sheet) {
+//       return res.status(404).json({ msg: "Answer sheet not found" });
+//     }
+// console.log(sheet.assignedStaff,"sheet.assignedStaff", staffId,"staffid");
+
+//     if (role === "staff" && sheet.assignedStaff.toString() !== staffId) {
+//       return res.status(403).json({ msg: "Not assigned to this sheet" });
+//     }
+
+
+//     // 4️⃣ Generate SHORT-LIVED VIEW URL (3 minutes)
+//     const expiresAt = Math.floor(Date.now() / 1000) + (3 * 60);
+
+//     const signedUrl = cloudinary.utils.private_download_url(
+//       publicId,
+//       "pdf",
+//       {
+//         resource_type: "raw",
+//         type: "authenticated",
+//         expires_at: expiresAt
+//       }
+//     );
+
+//     return res.json({ url: signedUrl });
+
+//   } catch (err) {
+//     console.error("SIGNED URL ERROR:", err);
+//     return res.status(500).json({ msg: "Failed to generate secure link" });
+//   }
+// };
+
+// export const getSignedPdfUrl = async (req, res) => {
+//   try {
+//     const { encrypted } = req.params;
+
+//     // Auth data from JWT (set by auth middleware)
+//     const staff = await Staff.findOne({commonKey:req.user.loginId}).select("_id")
+//     console.log(staff);
+    
+//     const userIdFromToken = staff._id.toString();;
+//     console.log(req.user);
+    
+//     const role = req.user.role;
+
+//     // Optional but recommended: explicit staffId from client
+//     const staffIdFromClient = req.query.staffId;
+//     console.log("staffIdFromClient", staffIdFromClient);
+    
+
+//     // ================= ROLE VALIDATION =================
+//     if (!["staff", "college"].includes(role)) {
+//       return res.status(403).json({ msg: "Access denied" });
+//     }
+
+//     // ================= STAFF ID CONSISTENCY CHECK =================
+//     if (role === "staff") {
+//       if (!staffIdFromClient) {
+//         return res.status(400).json({ msg: "Staff ID is required" });
+//       }
+// console.log("staffIdFromClient",staffIdFromClient,userIdFromToken, "userIdFromToken");
+
+//       if (staffIdFromClient !== userIdFromToken) {
+//         return res.status(403).json({ msg: "Staff identity mismatch" });
+//       }
+//     }
+
+//     // ================= DECRYPT CLOUDINARY PUBLIC ID =================
+//     let publicId;
+//     try {
+//       publicId = decrypt(encrypted);
+//     } catch (e) {
+//       return res.status(400).json({ msg: "Invalid encrypted file reference" });
+//     }
+
+//     // ================= FETCH ANSWER SHEET =================
+//     const sheet = await AnswerSheet.findOne({ filePublicId: encrypted });
+
+//     if (!sheet) {
+//       return res.status(404).json({ msg: "Answer sheet not found" });
+//     }
+
+//     // ================= OWNERSHIP / ASSIGNMENT CHECK =================
+//     if (role === "staff") {
+//       if (!sheet.assignedStaff) {
+//         return res.status(403).json({ msg: "Sheet not assigned to any staff" });
+//       }
+
+//       if (sheet.assignedStaff.toString() !== userIdFromToken) {
+//         return res.status(403).json({ msg: "Not authorized to view this sheet" });
+//       }
+//     }
+
+//     // ================= GENERATE SHORT-LIVED SIGNED URL =================
+//     const expiresAt = Math.floor(Date.now() / 1000) + 3 * 60; // 3 minutes
+
+//     const signedUrl = cloudinary.utils.private_download_url(
+//       publicId,
+//       "pdf",
+//       {
+//         resource_type: "raw",
+//         type: "authenticated",
+//         expires_at: expiresAt
+//       }
+//     );
+
+//     // ================= RESPONSE =================
+//     return res.status(200).json({
+//       url: signedUrl,
+//       expiresIn: 180
+//     });
+
+//   } catch (err) {
+//     console.error("SIGNED URL ERROR:", err);
+//     return res.status(500).json({ msg: "Failed to generate secure link" });
+//   }
+// };
 export const getSignedPdfUrl = async (req, res) => {
   try {
     const { encrypted } = req.params;
+    const role = req.user.role;
+    
 
-    const signedUrl = generateSignedPdfUrl(
-      encrypted,
-      5 * 60 // 5 minutes
+    // ================= ROLE VALIDATION =================
+    if (!["staff", "college"].includes(role)) {
+      return res.status(403).json({ msg: "Access denied" });
+    }
+
+    let userIdFromToken = null;
+
+    // ================= STAFF AUTH VALIDATION =================
+    if (role === "staff") {
+      const staff = await Staff.findOne({
+        commonKey: req.user.loginId
+      }).select("_id");
+
+      if (!staff) {
+        return res.status(401).json({ msg: "Invalid staff token" });
+      }
+
+      userIdFromToken = staff._id.toString();
+
+      const staffIdFromClient = req.query.staffId;
+      if (!staffIdFromClient) {
+        return res.status(400).json({ msg: "Staff ID is required" });
+      }
+
+      if (staffIdFromClient !== userIdFromToken) {
+        return res.status(403).json({ msg: "Staff identity mismatch" });
+      }
+    }
+
+    // ================= DECRYPT CLOUDINARY PUBLIC ID =================
+    let publicId;
+    try {
+      publicId = decrypt(encrypted);
+    } catch {
+      return res.status(400).json({ msg: "Invalid encrypted file reference" });
+    }
+
+    // ================= FETCH ANSWER SHEET =================
+    const sheet = await AnswerSheet.findOne({ filePublicId: encrypted });
+
+    if (!sheet) {
+      return res.status(404).json({ msg: "Answer sheet not found" });
+    }
+
+    // ================= STAFF OWNERSHIP CHECK =================
+    if (role === "staff") {
+      if (!sheet.assignedStaff) {
+        return res.status(403).json({ msg: "Sheet not assigned to any staff" });
+      }
+
+      // if (sheet.assignedStaff.toString() !== userIdFromToken) {
+      //   return res.status(403).json({ msg: "Not authorized to view this sheet" });
+      // }
+    }
+
+    // ================= GENERATE SHORT-LIVED SIGNED URL =================
+    const expiresAt = Math.floor(Date.now() / 1000) + 3 * 60; // 3 minutes
+
+    const signedUrl = cloudinary.utils.private_download_url(
+      publicId,
+      "pdf",
+      {
+        resource_type: "raw",
+        type: "authenticated",
+        expires_at: expiresAt
+      }
     );
 
-    return res.json({ url: signedUrl });
+    return res.status(200).json({
+      url: signedUrl,
+      expiresIn: 180
+    });
 
   } catch (err) {
-    console.log("SIGNED URL ERROR:", err);
-    return res.status(500).json({ msg: err.message });
+    console.error("SIGNED URL ERROR:", err);
+    return res.status(500).json({ msg: "Failed to generate secure link" });
   }
 };
+
+
 
 export const deleteSheet = async (req, res) => {
   try {

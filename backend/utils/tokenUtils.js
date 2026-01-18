@@ -1,26 +1,11 @@
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
-// const ACCESS_SECRET = "ACCESS_SECRET_KEY";
-// const REFRESH_SECRET = "REFRESH_SECRET_KEY";
+
 
 const ACCESS_SECRET = process.env.ACCESS_SECRET;
 const REFRESH_SECRET = process.env.REFRESH_SECRET;
-console.log(ACCESS_SECRET);
-console.log(REFRESH_SECRET);
 
-
-
-// export const generateAccessToken = (payload) => {
-//    if (!process.env.ACCESS_SECRET) {
-//     throw new Error("ACCESS_SECRET is missing in environment variables");
-//   }
-//   return jwt.sign(payload, ACCESS_SECRET, { expiresIn: "15m" });
-// };
-
-// export const generateRefreshToken = () => {
-//   return crypto.randomBytes(40).toString("hex");
-// };
 
 
 export const generateAccessToken = (payload) => {

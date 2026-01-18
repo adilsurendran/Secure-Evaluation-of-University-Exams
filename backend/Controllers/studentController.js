@@ -32,6 +32,10 @@ export const createStudent = async (req, res) => {
     if (exists) {
       return res.status(400).json({ msg: "Student already registered" });
     }
+    const sameadmissionnumber = await Student.findOne({admissionNo})
+if (sameadmissionnumber) {
+      return res.status(400).json({ msg: "Student already registered" });
+    }
 
     // Validate password
     if (!password || password.length < 6) {

@@ -9,6 +9,8 @@ function UploadAnswerSheet() {
   const [sessions, setSessions] = useState([]);
   const [exams, setExams] = useState([]);
   const [students, setStudents] = useState([]);
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
+
 
   const [form, setForm] = useState({
     sessionId: "",
@@ -138,6 +140,8 @@ function UploadAnswerSheet() {
       studentId: "", // Reset student when exam changes
     });
   };
+
+  
 
   return (
     <>
@@ -342,14 +346,14 @@ function UploadAnswerSheet() {
             </div>
 
             {/* SUBJECT (AUTO-FILLED) */}
-            {form.subjectId && (
+            {/* {form.subjectId && (
               <div className="form-group">
                 <label>Mapped Subject ID</label>
                 <div className="subject-display">
                   🆔 {form.subjectId}
                 </div>
               </div>
-            )}
+            )} */}
 
             {/* STUDENT SELECT */}
             <div className="form-group">
@@ -374,16 +378,60 @@ function UploadAnswerSheet() {
             {/* PDF UPLOAD */}
             <div className="form-group">
               <label>Answer Sheet (PDF only)</label>
-              <input
+              {/* <input
                 type="file"
                 accept="application/pdf"
                 onChange={(e) =>
                   setForm({ ...form, pdf: e.target.files[0] })
                 }
                 disabled={loading}
-              />
+              /> */}
+              <input
+  type="file"
+  accept="application/pdf"
+  onChange={(e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // revoke old preview to avoid memory leak
+    if (pdfPreviewUrl) {
+      URL.revokeObjectURL(pdfPreviewUrl);
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+
+    setForm({ ...form, pdf: file });
+    setPdfPreviewUrl(previewUrl);
+  }}
+  disabled={loading}
+/>
+
               {errors.pdf && <p className="text-danger">{errors.pdf}</p>}
             </div>
+            {pdfPreviewUrl && (
+  <div className="form-group">
+    <label>PDF Preview</label>
+    <div
+      style={{
+        border: "2px solid #e2e8f0",
+        borderRadius: "12px",
+        overflow: "hidden",
+        height: "400px"
+      }}
+    >
+      <iframe
+        src={`${pdfPreviewUrl}#toolbar=0`}
+        title="PDF Preview"
+        style={{
+          width: "100%",
+          height: "100%",
+          border: "none"
+        }}
+      />
+    </div>
+  </div>
+)}
+
 
             <button type="submit" className="submit-btn" disabled={loading}>
               {loading ? "Processing Secure Upload..." : "Upload Answer Sheet"}
@@ -391,6 +439,7 @@ function UploadAnswerSheet() {
           </form>
         </div>
       </div>
+      
     </>
   );
 }

@@ -65,6 +65,7 @@ import StudentComplaints from './components/student/StudentComplaints';
 import ProtectedRoute from './components/protect/ProtectedRoute';
 import RoleProtectedRoute from './components/protect/RoleProtectedRoute';
 import AdminHistory from './components/university/history/AdminHistory';
+import SecurePdfViewer from './components/college/SecurePdfViewer';
 
 function App() {
   return (
@@ -129,6 +130,8 @@ function App() {
         <Route path="results" element={<CollegeResultsDashboard />} />
         <Route path="revaluation" element={<CollegeViewRevaluationResult />} />
         <Route path="notification" element={<ViewNotification />} />
+        <Route path="secure-pdf-viewer" element={<SecurePdfViewer />}/>
+
       </Route>
 
       {/* ================= STAFF ================= */}
@@ -138,6 +141,16 @@ function App() {
           <ProtectedRoute>
             <RoleProtectedRoute allowedRoles={["staff"]}>
               <StaffHome />
+            </RoleProtectedRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/staff/secure-pdf-viewer"
+        element={
+          <ProtectedRoute>
+            <RoleProtectedRoute allowedRoles={["staff"]}>
+              <SecurePdfViewer />
             </RoleProtectedRoute>
           </ProtectedRoute>
         }
@@ -190,6 +203,16 @@ function App() {
           <ProtectedRoute>
             <RoleProtectedRoute allowedRoles={["student"]}>
               <StudentDashboard />
+            </RoleProtectedRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/student/secure-pdf-viewer"
+        element={
+          <ProtectedRoute>
+            <RoleProtectedRoute allowedRoles={["student"]}>
+              < SecurePdfViewer/>
             </RoleProtectedRoute>
           </ProtectedRoute>
         }
@@ -284,6 +307,8 @@ function App() {
           </ProtectedRoute>
         }
       />
+      
+
 
     </Routes>
   );
